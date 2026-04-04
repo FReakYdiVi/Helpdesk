@@ -1,0 +1,62 @@
+[
+  {
+    "id": "faq_001",
+    "category": "payment_failure",
+    "question": "What should I do if a UPI payment failed but money was debited?",
+    "answer": "If the payment status shows failed but the amount was debited, ask the customer to wait up to 24 hours for an automatic reversal. Collect the UTR, amount, and transaction time. Escalate only if the debit is not reversed after the standard window."
+  },
+  {
+    "id": "faq_002",
+    "category": "payment_failure",
+    "question": "What if the merchant says payment was not received even though the customer paid?",
+    "answer": "Ask for the UTR, merchant name, amount, and time of payment. If the transaction is pending or processing, advise the customer to wait for final status. If the status remains unresolved beyond the expected window, raise a payments investigation."
+  },
+  {
+    "id": "faq_003",
+    "category": "refund_delay",
+    "question": "How should support handle a delayed refund in a UPI app?",
+    "answer": "Confirm the original transaction reference, refund reference if available, amount, and merchant name. Inform the customer that refunds may take several business days depending on the bank and merchant. Escalate when the refund exceeds the documented turnaround time."
+  },
+  {
+    "id": "faq_004",
+    "category": "refund_delay",
+    "question": "What if the merchant claims a refund was completed but the customer has not received it?",
+    "answer": "Verify the refund date, amount, merchant, and UTR or ARN if shared by the merchant. Check whether the refund is still in progress at the bank side. Escalate when the refund is marked complete but remains uncredited past the expected settlement window."
+  },
+  {
+    "id": "faq_005",
+    "category": "fraud_complaint",
+    "question": "How should an unauthorized UPI transaction be handled?",
+    "answer": "Treat unauthorized payment reports as high priority. Do not ask for PIN, OTP, CVV, or full card details. Advise the customer to secure the account immediately, verify recent activity, and escalate to the fraud team for formal review."
+  },
+  {
+    "id": "faq_006",
+    "category": "kyc_account_restriction",
+    "question": "What should support say when a wallet or account is restricted due to KYC issues?",
+    "answer": "Explain whether the restriction is due to pending, expired, or failed KYC verification. Ask the customer to confirm the registered details and complete the required KYC steps in-app. Escalate only if the account remains restricted after successful verification or manual review is needed."
+  },
+  {
+    "id": "faq_007",
+    "category": "kyc_account_restriction",
+    "question": "What if a customer says their KYC was submitted but the account is still blocked?",
+    "answer": "Confirm when the documents were submitted and whether any rejection message is shown. If review is still in progress, provide the expected review timeline. Escalate to the KYC team if the review is overdue or the account is blocked despite successful verification."
+  },
+  {
+    "id": "faq_008",
+    "category": "upi_pin_or_bank_linking",
+    "question": "How do you handle UPI PIN setup or reset issues safely?",
+    "answer": "Never ask for the customer’s UPI PIN or OTP. Confirm whether the SIM is active on the same device, whether the debit card details were entered correctly, and whether the bank is supported. Suggest retrying after checking SMS permissions and bank availability."
+  },
+  {
+    "id": "faq_009",
+    "category": "upi_pin_or_bank_linking",
+    "question": "What if the customer cannot link a bank account in the UPI app?",
+    "answer": "Check whether the registered mobile number matches the bank account, the SIM is present in the device, and the bank’s UPI service is currently available. Ask for the bank name and exact error message. Escalate only if the account remains unlinked after standard troubleshooting."
+  },
+  {
+    "id": "faq_010",
+    "category": "fraud_complaint",
+    "question": "What if the customer clicked a scam collect request or shared app access?",
+    "answer": "Advise the customer to secure the account immediately, review recent transactions, and report the incident as potential fraud. Do not promise a refund. Escalate to the fraud team for investigation and next steps."
+  }
+]

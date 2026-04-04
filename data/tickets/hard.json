@@ -1,0 +1,92 @@
+[
+  {
+    "id": "hard_001",
+    "initial_text": "My payment is messed up and I need help right now.",
+    "issue_category": "payment_failure",
+    "gold_faq_id": "faq_001",
+    "trigger_phrases": ["utr", "amount", "transaction time"],
+    "clarified_text": "The payment failed but the amount was debited from my bank account about 20 minutes ago.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_002",
+    "initial_text": "I paid the shop but they are saying payment never came.",
+    "issue_category": "payment_failure",
+    "gold_faq_id": "faq_002",
+    "trigger_phrases": ["merchant name", "utr", "pending"],
+    "clarified_text": "The merchant says unpaid, but my app shows money debited and I have the UTR.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_003",
+    "initial_text": "I am waiting for my money back and no one is helping.",
+    "issue_category": "refund_delay",
+    "gold_faq_id": "faq_003",
+    "trigger_phrases": ["refund reference", "merchant", "amount"],
+    "clarified_text": "The order was cancelled and the merchant told me the refund would come, but it is still not credited.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_004",
+    "initial_text": "Refund issue again. This is getting frustrating.",
+    "issue_category": "refund_delay",
+    "gold_faq_id": "faq_004",
+    "trigger_phrases": ["refund date", "utr", "bank account"],
+    "clarified_text": "The merchant claims the refund was completed, but my bank account still does not show the amount.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_005",
+    "initial_text": "Someone took money from my UPI account and I did not do it.",
+    "issue_category": "fraud_complaint",
+    "gold_faq_id": "faq_005",
+    "trigger_phrases": ["unauthorized", "secure account", "recent transaction"],
+    "clarified_text": "I saw a payment I never approved and I am worried my account has been compromised.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_006",
+    "initial_text": "My wallet is blocked and I cannot use the app properly.",
+    "issue_category": "kyc_account_restriction",
+    "gold_faq_id": "faq_006",
+    "trigger_phrases": ["kyc status", "restriction reason", "verification"],
+    "clarified_text": "The app says my wallet is restricted because KYC is pending, but I am not sure what to do next.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_007",
+    "initial_text": "I already uploaded my documents and the account is still blocked.",
+    "issue_category": "kyc_account_restriction",
+    "gold_faq_id": "faq_007",
+    "trigger_phrases": ["submission date", "review status", "blocked after kyc"],
+    "clarified_text": "I submitted KYC documents days ago, but the account is still blocked with no update.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_008",
+    "initial_text": "I am unable to set my UPI PIN and the app keeps failing.",
+    "issue_category": "upi_pin_or_bank_linking",
+    "gold_faq_id": "faq_008",
+    "trigger_phrases": ["same device", "sms permission", "debit card"],
+    "clarified_text": "I am trying to set the UPI PIN after changing phones and the app fails during verification.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_009",
+    "initial_text": "My bank account just will not link and I have no idea why.",
+    "issue_category": "upi_pin_or_bank_linking",
+    "gold_faq_id": "faq_009",
+    "trigger_phrases": ["bank name", "registered mobile number", "error message"],
+    "clarified_text": "The bank account is not showing in the app even though the mobile number is linked to the bank.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "hard_010",
+    "initial_text": "I clicked something strange and now money is gone from my account.",
+    "issue_category": "fraud_complaint",
+    "gold_faq_id": "faq_010",
+    "trigger_phrases": ["collect request", "scam", "secure account"],
+    "clarified_text": "I accepted a suspicious collect request and now I think I was scammed through UPI.",
+    "difficulty": "hard"
+  }
+]

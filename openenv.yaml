@@ -1,0 +1,29 @@
+name: helpdesk-env
+version: "1.0.0"
+description: "An RL environment simulating a real IT helpdesk where an agent triages tickets, retrieves FAQ answers, and resolves multi-turn support conversations"
+tasks:
+  - id: easy
+    description: Classify 10 incoming support tickets into the correct category
+    difficulty: easy
+    max_turns: 1
+  - id: medium
+    description: Retrieve the correct FAQ answer for a query or decide to escalate
+    difficulty: medium
+    max_turns: 2
+  - id: hard
+    description: Resolve an ambiguous multi-turn support conversation within 6 turns
+    difficulty: hard
+    max_turns: 6
+action_space:
+  - classify
+  - lookup_faq
+  - ask_clarification
+  - reply
+  - escalate
+  - resolve_ticket
+observation_space:
+  - ticket_text
+  - conversation_history
+  - knowledge_base
+  - available_categories
+  - turn_number

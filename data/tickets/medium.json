@@ -1,0 +1,72 @@
+[
+  {
+    "id": "medium_001",
+    "text": "UPI transaction failed and money got debited. What should I tell the customer?",
+    "gold_faq_id": "faq_001",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_002",
+    "text": "Merchant says payment not received even though the user paid through UPI.",
+    "gold_faq_id": "faq_002",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_003",
+    "text": "Customer says the refund still has not arrived after the order was cancelled.",
+    "gold_faq_id": "faq_003",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_004",
+    "text": "Merchant says refund completed two days ago but the amount is not in the bank account.",
+    "gold_faq_id": "faq_004",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_005",
+    "text": "Customer reports an unauthorized UPI payment from their account.",
+    "gold_faq_id": "faq_005",
+    "should_escalate": true,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_006",
+    "text": "Customer says the wallet is restricted because KYC is pending.",
+    "gold_faq_id": "faq_006",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_007",
+    "text": "KYC was submitted last week but the account is still blocked with no update.",
+    "gold_faq_id": "faq_007",
+    "should_escalate": true,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_008",
+    "text": "User cannot set or reset the UPI PIN and wants next steps.",
+    "gold_faq_id": "faq_008",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_009",
+    "text": "The bank account is not linking in the UPI app even after several tries.",
+    "gold_faq_id": "faq_009",
+    "should_escalate": false,
+    "difficulty": "medium"
+  },
+  {
+    "id": "medium_010",
+    "text": "Customer clicked a suspicious collect request and now says the transfer was not authorized.",
+    "gold_faq_id": "faq_010",
+    "should_escalate": true,
+    "difficulty": "medium"
+  }
+]

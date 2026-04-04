@@ -1,0 +1,62 @@
+[
+  {
+    "id": "easy_001",
+    "text": "My UPI payment failed but the money has already been deducted from my bank account.",
+    "gold_category": "payment_failure",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_002",
+    "text": "The merchant says they did not receive my payment even though the app showed money debited.",
+    "gold_category": "payment_failure",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_003",
+    "text": "A merchant refunded me three days ago but I still do not see the money in my account.",
+    "gold_category": "refund_delay",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_004",
+    "text": "The seller says refund is completed but nothing has reached my bank yet.",
+    "gold_category": "refund_delay",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_005",
+    "text": "I did not make this UPI payment and I think someone used my account.",
+    "gold_category": "fraud_complaint",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_006",
+    "text": "I accepted a strange collect request and now money is gone from my account.",
+    "gold_category": "fraud_complaint",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_007",
+    "text": "My wallet is restricted because KYC is still pending.",
+    "gold_category": "kyc_account_restriction",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_008",
+    "text": "I submitted my KYC but the account is still blocked.",
+    "gold_category": "kyc_account_restriction",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_009",
+    "text": "I cannot reset my UPI PIN on the app.",
+    "gold_category": "upi_pin_or_bank_linking",
+    "difficulty": "easy"
+  },
+  {
+    "id": "easy_010",
+    "text": "My bank account is not linking in the UPI app even though the mobile number is correct.",
+    "gold_category": "upi_pin_or_bank_linking",
+    "difficulty": "easy"
+  }
+]
