@@ -43,14 +43,14 @@ The current support tracks are:
 - `upi_pin_or_bank_linking`
 
 The dataset includes:
-- 10 banking FAQ entries in [knowledge_base.json](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/data/knowledge_base.json)
-- 10 `easy` tickets in [easy.json](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/data/tickets/easy.json)
-- 10 `medium` tickets in [medium.json](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/data/tickets/medium.json)
-- 10 `hard` tickets in [hard.json](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/data/tickets/hard.json)
+- 10 banking FAQ entries in [data/knowledge_base.json](data/knowledge_base.json)
+- 10 `easy` tickets in [data/tickets/easy.json](data/tickets/easy.json)
+- 10 `medium` tickets in [data/tickets/medium.json](data/tickets/medium.json)
+- 10 `hard` tickets in [data/tickets/hard.json](data/tickets/hard.json)
 
 ## Action Space
 
-The public baseline and server currently accept the legacy action names below, which are internally mapped to the compact action model in [models.py](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/models.py).
+The public inference script and server accept the legacy action names below, which are internally mapped to the compact action model in [models.py](models.py).
 
 | Action | Parameters | Purpose |
 |---|---|---|
@@ -70,7 +70,7 @@ Internally, these are normalized to:
 
 ## Observation Space
 
-The model receives an `Observation` object from [models.py](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/models.py).
+The model receives an `Observation` object from [models.py](models.py).
 
 | Field | Type | Description |
 |---|---|---|
@@ -88,7 +88,7 @@ Important evaluation detail:
 
 ## Reward
 
-Rewards are normalized to the range `0.0` to `1.0` in [environment.py](/Users/shivanshmundra/Downloads/MetaHack/helpdesk-env/envs/helpdesk_env/environment.py).
+Rewards are normalized to the range `0.0` to `1.0` in [server/helpdesk_environment.py](server/helpdesk_environment.py).
 
 The final reward is shaped rather than purely binary. It combines:
 - `correctness`
@@ -134,26 +134,48 @@ python3 -m venv .venv
 
 ## Usage
 
-### Run Tests
+### Using Docker
+
+```bash
+# Build the image from the repository root
+docker build -t helpdesk-openenv:latest -f server/Dockerfile .
+
+# Run the server
+docker run -p 8000:8000 helpdesk-openenv:latest
+```
+
+### Local Development
+
+```bash
+# Install dependencies
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
+# Quick compile check
+PYTHONPYCACHEPREFIX=/tmp/pycache python3 -m py_compile \
+  inference.py server/app.py server/helpdesk_environment.py
+
+# Run the server locally
+PYTHONPATH=.. .venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --port 8000
+```
+
+### Run Inference
 
 ```bash
 cd /path/to/helpdesk_env
-.venv/bin/python -m py_compile environment.py inference.py models.py
+export API_BASE_URL=https://api.groq.com/openai/v1
+export MODEL_NAME=llama-3.3-70b-versatile
+export HF_TOKEN=your_api_key
+export TASK_NAME=easy
+python3 inference.py
 ```
 
-### Run the Server
+The script prints structured logs in the required format:
 
-```bash
-cd /path/to
-PYTHONPATH=. /path/to/helpdesk_env/.venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --port 8000
-```
-
-### Build the Docker Image
-
-```bash
-cd /path/to/helpdesk_env
-docker build -t helpdesk-openenv .
-docker run --rm -p 8000:8000 helpdesk-openenv
+```text
+[START] task=easy env=helpdesk_env model=llama-3.3-70b-versatile
+[STEP] step=1 action={"action_type":"classify","category":"payment_failure"} reward=1.00 done=true error=null
+[END] success=true steps=1 score=1.000 rewards=1.00
 ```
 
 ### Use the Python Client
@@ -166,19 +188,41 @@ result = client.reset("easy")
 print(result.observation.customer_message)
 ```
 
-### Run Inference
+### Test the Live HF Space
 
 ```bash
-cd /path/to/helpdesk_env
-export GROQ_API_KEY=your_key
-.venv/bin/python inference.py
+# Replace with your actual Space subdomain
+curl https://freakdivi-helpdesk.hf.space/health
+
+curl -X POST https://freakdivi-helpdesk.hf.space/reset \
+  -H "Content-Type: application/json" \
+  -d '{"task_id":"easy"}'
+
+curl -X POST https://freakdivi-helpdesk.hf.space/step \
+  -H "Content-Type: application/json" \
+  -d '{"action":{"action_type":"classify","category":"payment_failure"}}'
 ```
 
-Optional model override:
+Important:
+- Use the `.hf.space` runtime URL for API calls
+- Do not use `https://huggingface.co/spaces/...` for `/health` or `/reset`, because that is the Space webpage, not the running API
+
+## Hugging Face Space Deployment
+
+This repo is configured as a Docker-based HF Space through the YAML frontmatter at the top of this README:
+- `sdk: docker`
+- `app_port: 8000`
+- `tags` include `openenv`
+
+Typical flow:
 
 ```bash
-export LLM_MODEL=llama-3.1-8b-instant
-export TASK_NAME=medium
+git clone https://huggingface.co/spaces/<username>/<space-name>
+cd <space-name>
+rsync -av --exclude '.git' /path/to/helpdesk_env/ ./
+git add .
+git commit -m "Deploy UPI banking support environment"
+git push
 ```
 
 ## Baseline Scores
@@ -198,7 +242,6 @@ Interpretation:
 ```text
 helpdesk_env/
 ├── README.md
-├── Dockerfile
 ├── .gitignore
 ├── .dockerignore
 ├── __init__.py
@@ -209,16 +252,21 @@ helpdesk_env/
 │       ├── easy.json
 │       ├── medium.json
 │       └── hard.json
-├── environment.py
 ├── inference.py
 ├── models.py
 ├── openenv.yaml
 ├── requirements.txt
+├── user_simulator.py
 ├── graders/
 │   ├── category_grader.py
 │   ├── faq_grader.py
 │   └── resolution_grader.py
 └── server/
     ├── app.py
+    ├── Dockerfile
     └── helpdesk_environment.py
 ```
+
+## Notes
+
+[user_simulator.py](user_simulator.py) is intentionally kept. It powers the customer-side replies for the `hard` task, which is what makes the benchmark genuinely multi-turn instead of a static single-response scoring setup.
