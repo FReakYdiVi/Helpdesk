@@ -132,6 +132,14 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 ```
 
+Runtime configuration is read from `.env`.
+The environment currently uses:
+- `API_BASE_URL=https://api.groq.com/openai/v1`
+- `MODEL_NAME=llama-3.3-70b-versatile`
+- `GROQ_API_KEY` for model access
+- `HF_SPACE_URL` for the deployed Space runtime URL
+- `HF_SPACE_TOKEN` for protected Space access when required
+
 ## Usage
 
 ### Using Docker
@@ -163,12 +171,10 @@ PYTHONPATH=.. .venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --p
 
 ```bash
 cd /path/to/helpdesk_env
-export API_BASE_URL=https://api.groq.com/openai/v1
-export MODEL_NAME=llama-3.3-70b-versatile
-export HF_TOKEN=your_api_key
-export TASK_NAME=easy
 python3 inference.py
 ```
+
+`inference.py` reads configuration from `.env`.
 
 The script prints structured logs in the required format:
 
@@ -188,17 +194,28 @@ result = client.reset("easy")
 print(result.observation.customer_message)
 ```
 
+For a deployed HF Space:
+
+```python
+from helpdesk_env.client import HelpdeskEnvClient
+
+client = HelpdeskEnvClient.from_env()
+print(client.health())
+```
+
 ### Test the Live HF Space
 
 ```bash
-# Replace with your actual Space subdomain
-curl https://freakdivi-helpdesk.hf.space/health
+curl -H "Authorization: Bearer $HF_SPACE_TOKEN" \
+  "$HF_SPACE_URL/health"
 
-curl -X POST https://freakdivi-helpdesk.hf.space/reset \
+curl -X POST "$HF_SPACE_URL/reset" \
+  -H "Authorization: Bearer $HF_SPACE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"task_id":"easy"}'
 
-curl -X POST https://freakdivi-helpdesk.hf.space/step \
+curl -X POST "$HF_SPACE_URL/step" \
+  -H "Authorization: Bearer $HF_SPACE_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"action":{"action_type":"classify","category":"payment_failure"}}'
 ```
@@ -206,6 +223,7 @@ curl -X POST https://freakdivi-helpdesk.hf.space/step \
 Important:
 - Use the `.hf.space` runtime URL for API calls
 - Do not use `https://huggingface.co/spaces/...` for `/health` or `/reset`, because that is the Space webpage, not the running API
+- If your Space is public, the `Authorization` header is optional
 
 ## Hugging Face Space Deployment
 
@@ -229,9 +247,9 @@ git push
 
 Latest observed Groq baseline run after removing answer leakage from the observation:
 
-| Model | Easy | Medium | Hard | Average |
+| Model | Easy | Medium | Hard |
 |---|---:|---:|---:|---:|
-| `llama-3.3-70b-versatile` | 1.00 | 0.60 | 0.59 | 0.73 |
+| `llama-3.3-70b-versatile` | 0.98 | 0.67 | 0.53 |
 
 Interpretation:
 - `easy` is still quite direct and can be near-perfect for strong LLMs

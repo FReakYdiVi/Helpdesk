@@ -9,6 +9,23 @@ from openai import OpenAI
 
 
 ROOT = Path(__file__).resolve().parent
+
+
+def _load_dotenv() -> None:
+    env_path = ROOT / ".env"
+    if not env_path.exists():
+        return
+
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
 if __package__ in (None, ""):
     PACKAGE_PARENT = ROOT.parent
     if str(PACKAGE_PARENT) not in sys.path:
@@ -20,9 +37,11 @@ else:
     from .models import Action
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
+API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
-API_KEY = os.getenv("GROQ_API_KEY") or os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_KEY = os.getenv("GROQ_API_KEY")
+HF_SPACE_URL = os.getenv("HF_SPACE_URL", "")
+HF_SPACE_TOKEN = os.getenv("HF_SPACE_TOKEN", "")
 TASK_NAME = os.getenv("TASK_NAME", "easy")
 BENCHMARK = os.getenv("BENCHMARK", "helpdesk_env")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0"))
@@ -217,9 +236,7 @@ def get_model_action(
 
 def main() -> None:
     if not API_KEY:
-        raise RuntimeError(
-            "Set GROQ_API_KEY, HF_TOKEN, or API_KEY before running inference.py"
-        )
+        raise RuntimeError("Set GROQ_API_KEY before running inference.py")
 
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     env = HelpdeskEnv()

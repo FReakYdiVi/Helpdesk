@@ -1,6 +1,7 @@
 """HTTP client for the Helpdesk OpenEnv server (see server/app.py)."""
 
 from dataclasses import dataclass
+import os
 from typing import Any, Dict, Optional
 
 import requests
@@ -23,10 +24,21 @@ class HelpdeskEnvClient:
         self,
         base_url: str,
         request_timeout_s: float = 60.0,
+        access_token: Optional[str] = None,
     ):
         self._base = base_url.rstrip("/")
         self._timeout = float(request_timeout_s)
         self._http = requests.Session()
+        token = access_token or os.getenv("HF_SPACE_TOKEN")
+        if token:
+            self._http.headers.update({"Authorization": f"Bearer {token}"})
+
+    @classmethod
+    def from_env(cls, request_timeout_s: float = 60.0) -> "HelpdeskEnvClient":
+        base_url = os.getenv("HF_SPACE_URL", "").strip()
+        if not base_url:
+            raise RuntimeError("Set HF_SPACE_URL before calling HelpdeskEnvClient.from_env()")
+        return cls(base_url=base_url, request_timeout_s=request_timeout_s)
 
     def reset(self, task_id: str = "easy") -> StepResult:
         r = self._http.post(
