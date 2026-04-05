@@ -1,5 +1,5 @@
 from .client import HelpdeskEnvClient
-from .environment import HelpdeskEnv
+from .server.helpdesk_environment import HelpdeskEnv
 from .models import Action, Observation, Reward, TicketState
 
 # OpenEnv-style alias for episode/ticket state

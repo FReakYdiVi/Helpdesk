@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from ..environment import HelpdeskEnv
+from .helpdesk_environment import HelpdeskEnv
 from ..models import Action, Reward
 
 app = FastAPI(title="Helpdesk OpenEnv")
@@ -39,6 +39,15 @@ def _zero_reward() -> Dict[str, Any]:
 @app.get("/health")
 def health() -> Dict[str, str]:
     return {"status": "healthy"}
+
+
+@app.get("/")
+def root() -> Dict[str, Any]:
+    return {
+        "name": "UPI Banking Support Environment",
+        "status": "running",
+        "endpoints": ["/health", "/reset", "/step", "/state"],
+    }
 
 
 @app.post("/reset")

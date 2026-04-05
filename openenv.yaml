@@ -1,19 +1,21 @@
-name: helpdesk-env
+name: helpdesk_env
 version: "1.0.0"
-description: "An RL environment simulating a real IT helpdesk where an agent triages tickets, retrieves FAQ answers, and resolves multi-turn support conversations"
+description: "OpenEnv-style UPI banking support environment for issue classification, FAQ retrieval, escalation, and multi-turn customer support."
+
 tasks:
   - id: easy
-    description: Classify 10 incoming support tickets into the correct category
+    description: "Classify a customer issue into the correct UPI banking support track."
     difficulty: easy
     max_turns: 1
   - id: medium
-    description: Retrieve the correct FAQ answer for a query or decide to escalate
+    description: "Choose the correct FAQ or escalate when manual review is required."
     difficulty: medium
-    max_turns: 2
+    max_turns: 3
   - id: hard
-    description: Resolve an ambiguous multi-turn support conversation within 6 turns
+    description: "Handle a multi-turn banking support conversation with clarification, safe guidance, and closure."
     difficulty: hard
-    max_turns: 6
+    max_turns: 8
+
 action_space:
   - classify
   - lookup_faq
@@ -21,9 +23,13 @@ action_space:
   - reply
   - escalate
   - resolve_ticket
+
 observation_space:
-  - ticket_text
+  - case_id
+  - track
+  - customer_message
   - conversation_history
-  - knowledge_base
-  - available_categories
+  - known_facts
+  - required_slots
+  - available_actions
   - turn_number

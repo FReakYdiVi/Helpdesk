@@ -3,19 +3,21 @@ import os
 import sys
 import textwrap
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional, cast
 
 from openai import OpenAI
 
 
 ROOT = Path(__file__).resolve().parent
-PACKAGE_PARENT = ROOT.parent
-if str(PACKAGE_PARENT) not in sys.path:
-    sys.path.insert(0, str(PACKAGE_PARENT))
-
-from helpdesk_env.environment import HelpdeskEnv
-from helpdesk_env.models import Action
-
+if __package__ in (None, ""):
+    PACKAGE_PARENT = ROOT.parent
+    if str(PACKAGE_PARENT) not in sys.path:
+        sys.path.insert(0, str(PACKAGE_PARENT))
+    from helpdesk_env.server.helpdesk_environment import HelpdeskEnv
+    from helpdesk_env.models import Action
+else:
+    from .server.helpdesk_environment import HelpdeskEnv
+    from .models import Action
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
@@ -92,10 +94,11 @@ def log_step(step: int, action: str, reward: float, done: bool, error: Optional[
     )
 
 
-def log_end(success: bool, steps: int, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     rewards_str = ",".join(f"{reward:.2f}" for reward in rewards)
     print(
-        f"[END] success={str(success).lower()} steps={steps} rewards={rewards_str}",
+        f"[END] success={str(success).lower()} steps={steps} "
+        f"score={score:.3f} rewards={rewards_str}",
         flush=True,
     )
 
@@ -123,12 +126,21 @@ _VALID_ACTIONS = frozenset(
     }
 )
 
+ActionType = Literal[
+    "classify",
+    "lookup_faq",
+    "ask_clarification",
+    "reply",
+    "escalate",
+    "resolve_ticket",
+]
 
-def _normalize_action_type(raw: object) -> str:
+
+def _normalize_action_type(raw: object) -> Optional[ActionType]:
     if raw is None:
-        return ""
+        return None
     value = str(raw).strip().lower().replace("-", "_")
-    return value if value in _VALID_ACTIONS else ""
+    return cast(ActionType, value) if value in _VALID_ACTIONS else None
 
 
 def _fallback_action(task_id: str, turn_number: int) -> Action:
@@ -215,6 +227,7 @@ def main() -> None:
     history: List[str] = []
     rewards: List[float] = []
     steps_taken = 0
+    score = 0.0
     success = False
 
     log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
@@ -257,11 +270,12 @@ def main() -> None:
             steps_taken = step
             history.append(f"step={step} action={action_str} reward={reward_value:.2f}")
 
-        final_score = rewards[-1] if rewards else 0.0
-        success = final_score >= SUCCESS_SCORE_THRESHOLD
+        score = sum(rewards) / len(rewards) if rewards else 0.0
+        score = min(max(score, 0.0), 1.0)
+        success = score >= SUCCESS_SCORE_THRESHOLD
 
     finally:
-        log_end(success=success, steps=steps_taken, rewards=rewards)
+        log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 
 if __name__ == "__main__":
