@@ -1,29 +1,38 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "helpdesk-env"
 version = "1.0.0"
-description = "OpenEnv-style UPI banking support environment"
+description = "UPI banking customer support environment for OpenEnv"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-  "fastapi",
-  "openai",
-  "pydantic",
-  "requests",
-  "uvicorn",
+    "openenv-core[core]>=0.2.2",
+    "fastapi>=0.115.0",
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "uvicorn>=0.24.0",
 ]
 
-[tool.setuptools]
-packages = ["helpdesk_env"]
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+]
 
-[tool.setuptools.package-dir]
-helpdesk_env = "."
+[project.scripts]
+server = "helpdesk_env.server.app:app"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["helpdesk_env", "helpdesk_env.server", "helpdesk_env.graders"]
+package-dir = { "helpdesk_env" = ".", "helpdesk_env.server" = "server", "helpdesk_env.graders" = "graders" }
 
 [tool.setuptools.package-data]
 helpdesk_env = [
-  "data/*.json",
-  "data/tickets/*.json",
+    "data/*.json",
+    "data/tickets/*.json",
 ]
