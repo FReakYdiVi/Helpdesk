@@ -135,9 +135,10 @@ source .venv/bin/activate
 
 Runtime configuration is read from `.env`.
 The environment currently uses:
-- `API_BASE_URL=https://api.groq.com/openai/v1`
-- `MODEL_NAME=llama-3.3-70b-versatile`
-- `GROQ_API_KEY` for model access
+- `API_BASE_URL` for the provider endpoint
+- `MODEL` or `MODEL_NAME` for the selected model
+- `API_KEY` as the primary model credential
+- `OPENAI_API_KEY` and `GROQ_API_KEY` are also supported as compatibility aliases
 - `HF_SPACE_URL` for the deployed Space runtime URL
 - `HF_SPACE_TOKEN` for protected Space access when required
 

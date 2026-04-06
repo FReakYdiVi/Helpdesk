@@ -59,10 +59,10 @@ HelpdeskEnv, Action = cast(
 
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
-API_KEY = os.getenv("GROQ_API_KEY")
-HF_SPACE_URL = os.getenv("HF_SPACE_URL", "https://freakdivi-helpdesk.hf.space/")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL") or os.getenv("MODEL_NAME") or "gpt-5"
+API_KEY = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("GROQ_API_KEY")
+HF_SPACE_URL = os.getenv("HF_SPACE_URL", "https://freakdivi-helpdesk.hf.space")
 HF_SPACE_TOKEN = os.getenv("HF_SPACE_TOKEN", "")
 TASK_NAME = os.getenv("TASK_NAME", "medium")
 BENCHMARK = os.getenv("BENCHMARK", "helpdesk_env")
@@ -258,7 +258,9 @@ def get_model_action(
 
 def main() -> None:
     if not API_KEY:
-        raise RuntimeError("Set GROQ_API_KEY before running inference.py")
+        raise RuntimeError(
+            "Set API_KEY, OPENAI_API_KEY, or GROQ_API_KEY before running inference.py"
+        )
 
     client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
     env = HelpdeskEnv()
