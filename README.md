@@ -170,7 +170,7 @@ PYTHONPATH=.. .venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --p
 ### Run Inference
 
 ```bash
-cd /path/to/helpdesk_env
+cd /path/to/helpdesk
 python3 inference.py
 ```
 
@@ -248,7 +248,7 @@ git push
 Latest observed Groq baseline run after removing answer leakage from the observation:
 
 | Model | Easy | Medium | Hard |
-|---|---:|---:|---:|---:|
+|---|---:|---:|---:|
 | `llama-3.3-70b-versatile` | 0.98 | 0.67 | 0.53 |
 
 Interpretation:

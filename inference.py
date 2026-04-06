@@ -26,18 +26,15 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
-if __package__ in (None, ""):
-    PACKAGE_PARENT = ROOT.parent
-    if str(PACKAGE_PARENT) not in sys.path:
-        sys.path.insert(0, str(PACKAGE_PARENT))
-    from helpdesk_env.server.helpdesk_environment import HelpdeskEnv
-    from helpdesk_env.models import Action
-else:
-    from .server.helpdesk_environment import HelpdeskEnv
-    from .models import Action
+PACKAGE_PARENT = ROOT.parent
+if str(PACKAGE_PARENT) not in sys.path:
+    sys.path.insert(0, str(PACKAGE_PARENT))
+
+from server.helpdesk_environment import HelpdeskEnv
+from models import Action
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
-API_BASE_URL = os.getenv("API_BASE_URL")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
 API_KEY = os.getenv("GROQ_API_KEY")
 HF_SPACE_URL = os.getenv("HF_SPACE_URL", "")

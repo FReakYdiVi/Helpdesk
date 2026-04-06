@@ -3,15 +3,15 @@ import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from ..graders.category_grader import grade_classification, grade_information_collection
-from ..graders.faq_grader import (
+from graders.category_grader import grade_classification, grade_information_collection
+from graders.faq_grader import (
     grade_escalation,
     grade_faq_retrieval,
     grade_operation_choice,
 )
-from ..graders.resolution_grader import grade_case_closure, grade_resolution
-from ..models import Action, Observation, Reward, TicketState
-from ..user_simulator import UserSimulator
+from graders.resolution_grader import grade_case_closure, grade_resolution
+from models import Action, Observation, Reward, TicketState
+from user_simulator import UserSimulator
 
 
 def _data_dir() -> Path:
