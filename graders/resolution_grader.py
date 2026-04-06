@@ -1,4 +1,4 @@
-from models import TicketState
+from ..models import TicketState
 
 
 def grade_resolution(ticket_state: TicketState, max_turns: int = 6) -> float:

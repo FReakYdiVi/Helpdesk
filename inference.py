@@ -1,9 +1,10 @@
 import json
+import importlib
 import os
 import sys
 import textwrap
 from pathlib import Path
-from typing import List, Literal, Optional, cast
+from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Type, cast
 
 from openai import OpenAI
 
@@ -26,20 +27,44 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
-PACKAGE_PARENT = ROOT.parent
-if str(PACKAGE_PARENT) not in sys.path:
-    sys.path.insert(0, str(PACKAGE_PARENT))
+if TYPE_CHECKING:
+    from .models import Action
+    from .server.helpdesk_environment import HelpdeskEnv
 
-from server.helpdesk_environment import HelpdeskEnv
-from models import Action
+
+def _import_local_modules() -> Tuple[Type["HelpdeskEnv"], Type["Action"]]:
+    if __package__ not in (None, ""):
+        from .models import Action
+        from .server.helpdesk_environment import HelpdeskEnv
+
+        return HelpdeskEnv, Action
+
+    package_parent = ROOT.parent
+    package_name = ROOT.name
+
+    if str(package_parent) not in sys.path:
+        sys.path.insert(0, str(package_parent))
+
+    helpdesk_environment = importlib.import_module(
+        f"{package_name}.server.helpdesk_environment"
+    )
+    models = importlib.import_module(f"{package_name}.models")
+    return helpdesk_environment.HelpdeskEnv, models.Action
+
+
+HelpdeskEnv, Action = cast(
+    Tuple[Type["HelpdeskEnv"], Type["Action"]],
+    _import_local_modules(),
+)
+
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.groq.com/openai/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.3-70b-versatile")
 API_KEY = os.getenv("GROQ_API_KEY")
-HF_SPACE_URL = os.getenv("HF_SPACE_URL", "")
+HF_SPACE_URL = os.getenv("HF_SPACE_URL", "https://freakdivi-helpdesk.hf.space/")
 HF_SPACE_TOKEN = os.getenv("HF_SPACE_TOKEN", "")
-TASK_NAME = os.getenv("TASK_NAME", "easy")
+TASK_NAME = os.getenv("TASK_NAME", "medium")
 BENCHMARK = os.getenv("BENCHMARK", "helpdesk_env")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "180"))

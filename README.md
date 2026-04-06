@@ -129,6 +129,7 @@ From the package root:
 ```bash
 cd /path/to/helpdesk_env
 python3 -m venv .venv
+source .venv/bin/activate
 .venv/bin/pip install -r requirements.txt
 ```
 
@@ -146,10 +147,28 @@ The environment currently uses:
 
 ```bash
 # Build the image from the repository root
-docker build -t helpdesk-openenv:latest -f server/Dockerfile .
+docker build -t helpdesk-openenv:latest .
 
 # Run the server
 docker run -p 8000:8000 helpdesk-openenv:latest
+```
+
+Docker smoke test:
+
+```bash
+curl http://127.0.0.1:8000/health
+
+curl http://127.0.0.1:8000/
+
+curl -X POST http://127.0.0.1:8000/reset \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+curl -X POST http://127.0.0.1:8000/step \
+  -H "Content-Type: application/json" \
+  -d '{"action":{"action_type":"classify","category":"payment_failure"}}'
+
+curl http://127.0.0.1:8000/state
 ```
 
 ### Local Development
@@ -170,7 +189,18 @@ PYTHONPATH=.. .venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --p
 ### Run Inference
 
 ```bash
-cd /path/to/helpdesk
+API_BASE_URL=https://api.openai.com/v1 \
+API_KEY=$OPENAI_API_KEY \
+MODEL=gpt-5 \
+TASK_NAME=easy \
+python3 inference.py
+```
+
+```bash
+API_BASE_URL=https://api.groq.com/openai/v1 \
+API_KEY=$GROQ_API_KEY \
+MODEL=llama-3.3-70b-versatile \
+TASK_NAME=easy \
 python3 inference.py
 ```
 
@@ -206,24 +236,15 @@ print(client.health())
 ### Test the Live HF Space
 
 ```bash
-curl -H "Authorization: Bearer $HF_SPACE_TOKEN" \
-  "$HF_SPACE_URL/health"
 
-curl -X POST "$HF_SPACE_URL/reset" \
-  -H "Authorization: Bearer $HF_SPACE_TOKEN" \
+curl -X POST "https://freakdivi-helpdesk.hf.space/reset" \
   -H "Content-Type: application/json" \
   -d '{"task_id":"easy"}'
 
-curl -X POST "$HF_SPACE_URL/step" \
-  -H "Authorization: Bearer $HF_SPACE_TOKEN" \
+curl -X POST "https://freakdivi-helpdesk.hf.space/step" \
   -H "Content-Type: application/json" \
   -d '{"action":{"action_type":"classify","category":"payment_failure"}}'
 ```
-
-Important:
-- Use the `.hf.space` runtime URL for API calls
-- Do not use `https://huggingface.co/spaces/...` for `/health` or `/reset`, because that is the Space webpage, not the running API
-- If your Space is public, the `Authorization` header is optional
 
 ## Hugging Face Space Deployment
 
@@ -232,16 +253,9 @@ This repo is configured as a Docker-based HF Space through the YAML frontmatter 
 - `app_port: 8000`
 - `tags` include `openenv`
 
-Typical flow:
+Live Space:
+- https://huggingface.co/spaces/Freakdivi/HelpDesk
 
-```bash
-git clone https://huggingface.co/spaces/<username>/<space-name>
-cd <space-name>
-rsync -av --exclude '.git' /path/to/helpdesk_env/ ./
-git add .
-git commit -m "Deploy UPI banking support environment"
-git push
-```
 
 ## Baseline Scores
 
@@ -260,6 +274,7 @@ Interpretation:
 ```text
 helpdesk_env/
 ├── README.md
+├── Dockerfile
 ├── .gitignore
 ├── .dockerignore
 ├── __init__.py
@@ -281,7 +296,6 @@ helpdesk_env/
 │   └── resolution_grader.py
 └── server/
     ├── app.py
-    ├── Dockerfile
     └── helpdesk_environment.py
 ```
 

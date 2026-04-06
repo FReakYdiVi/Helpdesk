@@ -1,35 +1,6 @@
+spec_version: 1
 name: helpdesk_env
-version: "1.0.0"
-description: "OpenEnv-style UPI banking support environment for issue classification, FAQ retrieval, escalation, and multi-turn customer support."
-
-tasks:
-  - id: easy
-    description: "Classify a customer issue into the correct UPI banking support track."
-    difficulty: easy
-    max_turns: 1
-  - id: medium
-    description: "Choose the correct FAQ or escalate when manual review is required."
-    difficulty: medium
-    max_turns: 3
-  - id: hard
-    description: "Handle a multi-turn banking support conversation with clarification, safe guidance, and closure."
-    difficulty: hard
-    max_turns: 8
-
-action_space:
-  - classify
-  - lookup_faq
-  - ask_clarification
-  - reply
-  - escalate
-  - resolve_ticket
-
-observation_space:
-  - case_id
-  - track
-  - customer_message
-  - conversation_history
-  - known_facts
-  - required_slots
-  - available_actions
-  - turn_number
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
