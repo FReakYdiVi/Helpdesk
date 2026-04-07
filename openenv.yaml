@@ -1,6 +1,45 @@
 spec_version: 1
 name: helpdesk_env
+description: UPI banking customer support environment with 3 graded tasks.
 type: space
 runtime: fastapi
 app: server.app:app
 port: 8000
+default_task: medium
+tasks:
+  - id: easy
+    description: Single-turn issue classification.
+    dataset: data/tickets/easy.json
+    grader:
+      type: python
+      reward_source: server.helpdesk_environment:HelpdeskEnv.step
+      score_field: reward.value
+      functions:
+        - graders.category_grader:grade_classification
+        - graders.resolution_grader:grade_resolution
+        - graders.score_utils:ensure_open_unit_interval
+  - id: medium
+    description: FAQ retrieval or escalation decision.
+    dataset: data/tickets/medium.json
+    grader:
+      type: python
+      reward_source: server.helpdesk_environment:HelpdeskEnv.step
+      score_field: reward.value
+      functions:
+        - graders.faq_grader:grade_faq_retrieval
+        - graders.faq_grader:grade_escalation
+        - graders.faq_grader:grade_operation_choice
+        - graders.score_utils:ensure_open_unit_interval
+  - id: hard
+    description: Multi-turn support conversation with clarification and closure.
+    dataset: data/tickets/hard.json
+    grader:
+      type: python
+      reward_source: server.helpdesk_environment:HelpdeskEnv.step
+      score_field: reward.value
+      functions:
+        - graders.category_grader:grade_information_collection
+        - graders.faq_grader:grade_faq_retrieval
+        - graders.resolution_grader:grade_case_closure
+        - graders.resolution_grader:grade_resolution
+        - graders.score_utils:ensure_open_unit_interval
