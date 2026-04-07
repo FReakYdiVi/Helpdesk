@@ -1,15 +1,32 @@
 spec_version: 1
 name: helpdesk_env
-description: UPI banking customer support environment with 3 graded tasks.
+version: "0.1.0"
+description: >
+  An OpenEnv RL environment simulating UPI banking customer support workflows.
+  An AI agent classifies issues, retrieves the correct FAQ or escalation path,
+  and completes a safe multi-turn support flow across three graded tasks of
+  increasing difficulty.
+author: Freakdivi
+tags:
+  - openenv
+  - banking
+  - upi
+  - customer-support
+  - rl-environment
+
 type: space
 runtime: fastapi
 app: server.app:app
 port: 8000
 default_task: medium
+
 tasks:
   - id: easy
-    description: Single-turn issue classification.
+    difficulty: easy
+    description: Classify the customer's issue into the correct support category
     dataset: data/tickets/easy.json
+    max_steps: 1
+    reward_range: [0.0, 1.0]
     grader:
       type: python
       reward_source: server.helpdesk_environment:HelpdeskEnv.step
@@ -18,9 +35,13 @@ tasks:
         - graders.category_grader:grade_classification
         - graders.resolution_grader:grade_resolution
         - graders.score_utils:ensure_open_unit_interval
+
   - id: medium
-    description: FAQ retrieval or escalation decision.
+    difficulty: medium
+    description: Select the correct FAQ or escalate cases that require manual handling
     dataset: data/tickets/medium.json
+    max_steps: 3
+    reward_range: [0.0, 1.0]
     grader:
       type: python
       reward_source: server.helpdesk_environment:HelpdeskEnv.step
@@ -30,9 +51,13 @@ tasks:
         - graders.faq_grader:grade_escalation
         - graders.faq_grader:grade_operation_choice
         - graders.score_utils:ensure_open_unit_interval
+
   - id: hard
-    description: Multi-turn support conversation with clarification and closure.
+    difficulty: hard
+    description: Run a multi-turn support conversation with clarification, guidance, and safe closure
     dataset: data/tickets/hard.json
+    max_steps: 8
+    reward_range: [0.0, 1.0]
     grader:
       type: python
       reward_source: server.helpdesk_environment:HelpdeskEnv.step
@@ -43,3 +68,46 @@ tasks:
         - graders.resolution_grader:grade_case_closure
         - graders.resolution_grader:grade_resolution
         - graders.score_utils:ensure_open_unit_interval
+
+observation_space:
+  type: object
+  fields:
+    case_id: string
+    track: string
+    customer_message: string
+    conversation_history: array
+    known_facts: object
+    required_slots: array
+    available_actions: array
+    turn_number: integer
+
+action_space:
+  type: object
+  fields:
+    action_type: "classify | lookup_faq | ask_clarification | reply | escalate | resolve_ticket"
+    category: string (optional)
+    faq_id: string (optional)
+    message: string (optional)
+    fields_requested: array (optional)
+    target: string (optional)
+    operation: string (optional)
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: >
+    Partial reward is produced at each step and normalized by the environment.
+    The final reward combines correctness, safety, resolution, efficiency, and
+    penalties, with score outputs constrained to the open interval (0, 1) for
+    submission compatibility.
+
+endpoints:
+  reset: POST /reset
+  step: POST /step
+  state: GET /state
+  health: GET /health
+
+runtime_config:
+  framework: fastapi
+  python: "3.10"
+  port: 8000
