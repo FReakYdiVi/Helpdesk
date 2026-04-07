@@ -4,7 +4,7 @@ import os
 import sys
 import textwrap
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Literal, Optional, Tuple, Type, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from openai import OpenAI
 
@@ -32,12 +32,12 @@ if TYPE_CHECKING:
     from .server.helpdesk_environment import HelpdeskEnv
 
 
-def _import_local_modules() -> Tuple[Type["HelpdeskEnv"], Type["Action"]]:
+def _import_local_modules() -> Tuple[Type["HelpdeskEnv"], Type["Action"], Any]:
     if __package__ not in (None, ""):
-        from .models import Action
+        from .models import Action, normalize_action
         from .server.helpdesk_environment import HelpdeskEnv
 
-        return HelpdeskEnv, Action
+        return HelpdeskEnv, Action, normalize_action
 
     package_parent = ROOT.parent
     package_name = ROOT.name
@@ -49,13 +49,18 @@ def _import_local_modules() -> Tuple[Type["HelpdeskEnv"], Type["Action"]]:
         f"{package_name}.server.helpdesk_environment"
     )
     models = importlib.import_module(f"{package_name}.models")
-    return helpdesk_environment.HelpdeskEnv, models.Action
+    return helpdesk_environment.HelpdeskEnv, models.Action, models.normalize_action
 
 
-HelpdeskEnv, Action = cast(
-    Tuple[Type["HelpdeskEnv"], Type["Action"]],
+HelpdeskEnv, Action, normalize_action = cast(
+    Tuple[Type["HelpdeskEnv"], Type["Action"], Any],
     _import_local_modules(),
 )
+
+if __package__ not in (None, ""):
+    from .graders.score_utils import ensure_open_unit_interval
+else:
+    from graders.score_utils import ensure_open_unit_interval
 
 
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
@@ -184,27 +189,27 @@ def _normalize_action_type(raw: object) -> Optional[ActionType]:
     return cast(ActionType, value) if value in _VALID_ACTIONS else None
 
 
-def _fallback_action(task_id: str, turn_number: int) -> Action:
+def _fallback_action(task_id: str, turn_number: int) -> Dict[str, Any]:
     if task_id == "easy":
-        return Action(action_type="classify", category="payment_failure")
+        return {"action_type": "classify", "category": "payment_failure"}
     if task_id == "medium":
-        return Action(action_type="escalate", message="Escalating for manual review.")
+        return {"action_type": "escalate", "message": "Escalating for manual review."}
     if turn_number == 0:
-        return Action(
-            action_type="ask_clarification",
-            message="Please share the UTR, amount, and exact issue.",
-        )
+        return {
+            "action_type": "ask_clarification",
+            "message": "Please share the UTR, amount, and exact issue.",
+        }
     if turn_number == 1:
-        return Action(action_type="lookup_faq", faq_id="faq_001")
+        return {"action_type": "lookup_faq", "faq_id": "faq_001"}
     if turn_number in (2, 3):
-        return Action(
-            action_type="reply",
-            message="Please follow the safe steps in the app and confirm the result.",
-        )
-    return Action(action_type="resolve_ticket")
+        return {
+            "action_type": "reply",
+            "message": "Please follow the safe steps in the app and confirm the result.",
+        }
+    return {"action_type": "resolve_ticket"}
 
 
-def parse_action(response_text: str, task_id: str, turn_number: int) -> Action:
+def parse_action(response_text: str, task_id: str, turn_number: int) -> Dict[str, Any]:
     text = _extract_json_object(response_text)
     try:
         payload = json.loads(text)
@@ -224,12 +229,12 @@ def parse_action(response_text: str, task_id: str, turn_number: int) -> Action:
         return _fallback_action(task_id, turn_number)
 
     try:
-        return Action(
-            action_type=action_type,
-            category=payload.get("category"),
-            faq_id=payload.get("faq_id"),
-            message=payload.get("message"),
-        )
+        return {
+            "action_type": action_type,
+            "category": payload.get("category"),
+            "faq_id": payload.get("faq_id"),
+            "message": payload.get("message"),
+        }
     except Exception:
         return _fallback_action(task_id, turn_number)
 
@@ -240,7 +245,7 @@ def get_model_action(
     observation_json: str,
     history: List[str],
     turn_number: int,
-) -> Action:
+) -> Dict[str, Any]:
     user_prompt = build_user_prompt(task_id, observation_json, history)
     completion = client.chat.completions.create(
         model=MODEL_NAME,
@@ -268,7 +273,7 @@ def main() -> None:
     history: List[str] = []
     rewards: List[float] = []
     steps_taken = 0
-    score = 0.0
+    score = ensure_open_unit_interval(0.0)
     success = False
 
     log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
@@ -283,18 +288,20 @@ def main() -> None:
 
             error: Optional[str] = None
             try:
-                action = get_model_action(
+                raw_action = get_model_action(
                     client=client,
                     task_id=TASK_NAME,
                     observation_json=observation.model_dump_json(),
                     history=history,
                     turn_number=observation.turn_number,
                 )
+                action = normalize_action(raw_action)
                 observation, reward, done, _info = env.step(action)
-                reward_value = reward.value
+                reward_value = ensure_open_unit_interval(reward.value)
             except Exception as exc:
-                action = _fallback_action(TASK_NAME, observation.turn_number)
-                reward_value = 0.0
+                raw_action = _fallback_action(TASK_NAME, observation.turn_number)
+                action = normalize_action(raw_action)
+                reward_value = ensure_open_unit_interval(0.0)
                 done = True
                 error = str(exc)
 
@@ -311,8 +318,7 @@ def main() -> None:
             steps_taken = step
             history.append(f"step={step} action={action_str} reward={reward_value:.2f}")
 
-        score = sum(rewards) / len(rewards) if rewards else 0.0
-        score = min(max(score, 0.0), 1.0)
+        score = ensure_open_unit_interval(sum(rewards) / len(rewards) if rewards else 0.0)
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     finally:

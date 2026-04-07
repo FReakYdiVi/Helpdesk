@@ -10,6 +10,7 @@ from ..graders.faq_grader import (
     grade_operation_choice,
 )
 from ..graders.resolution_grader import grade_case_closure, grade_resolution
+from ..graders.score_utils import ensure_open_unit_interval
 from ..models import Action, Observation, Reward, TicketState
 from ..user_simulator import UserSimulator
 
@@ -69,7 +70,7 @@ class HelpdeskEnv:
         current_ticket = self.current_ticket
         ticket_state = self.ticket_state
 
-        canonical_action = self._canonicalize_action(action)
+        canonical_action = action
         self.turn_number += 1
         ticket_state.turns_used += 1
         self.action_history.append(canonical_action.action_type)
@@ -135,7 +136,7 @@ class HelpdeskEnv:
             if self.task_id == "hard" and self.user_sim is not None:
                 ticket_state.issue_resolved = self.user_sim.confirm_resolved()
             metrics["resolution"] = grade_case_closure(ticket_state)
-            if metrics["resolution"] == 0.0 and not ticket_state.escalated:
+            if metrics["resolution"] <= 0.001 and not ticket_state.escalated:
                 metrics["penalties"] -= 0.20
             done = True
 
@@ -152,61 +153,6 @@ class HelpdeskEnv:
             }
         )
         return self.state(), reward, done, info
-
-    def _canonicalize_action(self, action: Action) -> Action:
-        if action.action_type in {
-            "ask_for_details",
-            "take_action",
-            "respond_to_user",
-            "escalate_case",
-            "close_case",
-        }:
-            return action
-
-        if action.action_type == "classify":
-            return Action(
-                action_type="take_action",
-                operation="classify_issue",
-                category=action.category,
-                message=action.message,
-            )
-
-        if action.action_type == "lookup_faq":
-            return Action(
-                action_type="take_action",
-                operation="lookup_faq",
-                faq_id=action.faq_id,
-                message=action.message,
-            )
-
-        if action.action_type == "ask_clarification":
-            return Action(
-                action_type="ask_for_details",
-                fields_requested=["issue_details"],
-                message=action.message,
-            )
-
-        if action.action_type == "reply":
-            return Action(
-                action_type="respond_to_user",
-                message=action.message,
-            )
-
-        if action.action_type == "escalate":
-            return Action(
-                action_type="escalate_case",
-                target="human_agent",
-                message=action.message,
-            )
-
-        if action.action_type == "resolve_ticket":
-            return Action(
-                action_type="close_case",
-                operation="resolve_with_guidance",
-                message=action.message,
-            )
-
-        raise ValueError(f"Unsupported action type: {action.action_type}")
 
     def _infer_track(self, ticket: Dict[str, Any]) -> str:
         category = (
@@ -238,35 +184,36 @@ class HelpdeskEnv:
 
     def _grade_detail_request(self, action: Action) -> float:
         if self.ticket_state is None:
-            return 0.0
+            return ensure_open_unit_interval(0.0)
         if not action.fields_requested and not action.message:
-            return 0.0
+            return ensure_open_unit_interval(0.0)
         if not self.ticket_state.required_slots:
-            return 0.5
+            return ensure_open_unit_interval(0.5)
         info_score = grade_information_collection(
             action.fields_requested,
             self.ticket_state.required_slots,
         )
-        if self.task_id != "hard" and info_score == 0.0:
-            return 0.5
-        return info_score
+        if self.task_id != "hard" and info_score <= 0.001:
+            return ensure_open_unit_interval(0.5)
+        return ensure_open_unit_interval(info_score)
 
     def _grade_take_action(self, action: Action) -> Tuple[float, bool]:
         if self.current_ticket is None:
-            return 0.0, False
+            return ensure_open_unit_interval(0.0), False
 
         operation = (action.operation or "").strip().lower()
         current_ticket = self.current_ticket
 
-        if operation == "classify_issue":
+        if operation in {"classify_issue", "classify"}:
             gold_category = current_ticket.get("gold_category", "")
             score = grade_classification(action.category or "", gold_category)
-            return score, score == 1.0
+            resolved = (action.category or "").strip().lower() == str(gold_category).strip().lower()
+            return score, resolved
 
         if operation == "lookup_faq":
             gold_faq_id = current_ticket.get("gold_faq_id", "")
             score = grade_faq_retrieval(action.faq_id or "", gold_faq_id)
-            if self.ticket_state is not None and score == 1.0:
+            if self.ticket_state is not None and (action.faq_id or "").strip() == str(gold_faq_id).strip():
                 self.ticket_state.correct_faq_retrieved = True
             return score, False
 
@@ -276,10 +223,10 @@ class HelpdeskEnv:
                 and self.ticket_state.correct_faq_retrieved
                 and (self.task_id != "hard" or self.ticket_state.clarification_received)
             )
-            return (1.0 if resolved else 0.0), resolved
+            return ensure_open_unit_interval(1.0 if resolved else 0.0), resolved
 
         if operation == "check_status":
-            return 0.5, False
+            return ensure_open_unit_interval(0.5), False
 
         banking_operations = {
             "check_payment",
@@ -293,39 +240,39 @@ class HelpdeskEnv:
 
     def _grade_response(self, action: Action) -> float:
         if not action.message:
-            return 0.0
+            return ensure_open_unit_interval(0.0)
         if self.task_id == "hard" and self.ticket_state and self.ticket_state.correct_faq_retrieved:
-            return 1.0
-        return 0.5
+            return ensure_open_unit_interval(1.0)
+        return ensure_open_unit_interval(0.5)
 
     def _grade_safety(self, action: Action, metrics: Dict[str, float]) -> float:
         text = (action.message or "").lower()
         sensitive_markers = ["otp", "pin", "cvv", "password"]
         if any(marker in text for marker in sensitive_markers):
             metrics["penalties"] -= 0.50
-            return 0.0
+            return ensure_open_unit_interval(0.0)
 
-        if action.action_type == "close_case" and metrics["resolution"] == 0.0:
-            return 0.25
+        if action.action_type == "close_case" and metrics["resolution"] <= 0.001:
+            return ensure_open_unit_interval(0.25)
 
         if action.action_type == "escalate_case":
             expected = bool(self.current_ticket and self.current_ticket.get("should_escalate", False))
-            return 1.0 if expected else 0.6
+            return ensure_open_unit_interval(1.0 if expected else 0.6)
 
-        return 1.0
+        return ensure_open_unit_interval(1.0)
 
     def _grade_efficiency(self, done: bool) -> float:
         max_turns = 1 if self.task_id == "easy" else 2 if self.task_id == "medium" else 6
         if not done:
             remaining_ratio = max(0.0, 1.0 - (self.turn_number / max_turns))
-            return round(0.5 * remaining_ratio, 3)
-        return max(0.0, min(1.0, 1.0 - (0.1 * max(0, self.turn_number - 1))))
+            return ensure_open_unit_interval(round(0.5 * remaining_ratio, 3))
+        return ensure_open_unit_interval(1.0 - (0.1 * max(0, self.turn_number - 1)))
 
     def _calculate_reward(self, metrics: Dict[str, float], done: bool) -> Reward:
-        correctness = metrics.get("correctness", 0.0)
-        safety = metrics.get("safety", 0.0)
-        resolution = metrics.get("resolution", 0.0)
-        efficiency = metrics.get("efficiency", 0.0)
+        correctness = ensure_open_unit_interval(metrics.get("correctness", 0.0))
+        safety = ensure_open_unit_interval(metrics.get("safety", 0.0))
+        resolution = ensure_open_unit_interval(metrics.get("resolution", 0.0))
+        efficiency = ensure_open_unit_interval(metrics.get("efficiency", 0.0))
         penalties = metrics.get("penalties", 0.0)
 
         weighted = (
@@ -340,7 +287,7 @@ class HelpdeskEnv:
             penalties -= 0.05
 
         case_adjustment = self._case_complexity_adjustment()
-        final_value = max(0.0, min(1.0, weighted + penalties + case_adjustment))
+        final_value = ensure_open_unit_interval(weighted + penalties + case_adjustment)
         return Reward(
             value=final_value,
             correctness=correctness,

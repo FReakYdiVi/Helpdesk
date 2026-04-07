@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class Observation(BaseModel):
@@ -44,12 +44,6 @@ class Action(BaseModel):
         "respond_to_user",
         "escalate_case",
         "close_case",
-        "classify",
-        "lookup_faq",
-        "ask_clarification",
-        "reply",
-        "escalate",
-        "resolve_ticket",
     ]
     message: Optional[str] = None
     fields_requested: List[str] = Field(default_factory=list)
@@ -59,6 +53,73 @@ class Action(BaseModel):
     # Legacy compatibility with the original helpdesk action schema.
     category: Optional[str] = None
     faq_id: Optional[str] = None
+
+    @model_validator(mode="after")
+    def _validate_canonical_shape(self) -> "Action":
+        if self.action_type == "take_action" and not self.operation:
+            raise ValueError("take_action requires operation")
+        return self
+
+
+LegacyActionType = Literal[
+    "classify",
+    "lookup_faq",
+    "ask_clarification",
+    "reply",
+    "escalate",
+    "resolve_ticket",
+]
+
+
+def normalize_action(raw: Dict[str, Any]) -> Action:
+    action_type = str(raw.get("action_type", "")).strip()
+
+    if action_type == "classify":
+        return Action(
+            action_type="take_action",
+            operation="classify",
+            category=raw.get("category"),
+            message=raw.get("message"),
+            faq_id=raw.get("faq_id"),
+        )
+
+    if action_type == "lookup_faq":
+        return Action(
+            action_type="take_action",
+            operation="lookup_faq",
+            faq_id=raw.get("faq_id"),
+            message=raw.get("message"),
+            category=raw.get("category"),
+        )
+
+    if action_type == "ask_clarification":
+        return Action(
+            action_type="ask_for_details",
+            fields_requested=list(raw.get("fields_requested") or ["issue_details"]),
+            message=raw.get("message"),
+        )
+
+    if action_type == "reply":
+        return Action(
+            action_type="respond_to_user",
+            message=raw.get("message"),
+        )
+
+    if action_type == "escalate":
+        return Action(
+            action_type="escalate_case",
+            target=raw.get("target") or "human_agent",
+            message=raw.get("message"),
+        )
+
+    if action_type == "resolve_ticket":
+        return Action(
+            action_type="close_case",
+            operation=raw.get("operation") or "resolve_with_guidance",
+            message=raw.get("message"),
+        )
+
+    return Action(**raw)
 
 
 class Reward(BaseModel):

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import uvicorn
 
 from .helpdesk_environment import HelpdeskEnv
-from ..models import Action, Reward
+from ..models import Action, Reward, normalize_action
 
 app = FastAPI(title="Helpdesk OpenEnv")
 _env: Optional[HelpdeskEnv] = None
@@ -64,7 +64,7 @@ def reset(body: ResetBody = ResetBody()) -> Dict[str, Any]:
 
 @app.post("/step")
 def step(body: Dict[str, Any]) -> Dict[str, Any]:
-    action = Action(**body["action"])
+    action = normalize_action(body["action"])
     obs, reward, done, info = get_env().step(action)
     return {
         "observation": obs.model_dump(),
