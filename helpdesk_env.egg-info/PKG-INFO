@@ -1,3 +1,19 @@
+Metadata-Version: 2.4
+Name: helpdesk-env
+Version: 1.0.0
+Summary: UPI banking customer support environment for OpenEnv
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: openenv-core[core]>=0.2.2
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: openai>=1.0.0
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: uvicorn>=0.24.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+
 ---
 title: UPI Banking Support Environment
 emoji: 🏦
@@ -128,7 +144,9 @@ From the package root:
 
 ```bash
 cd /path/to/helpdesk_env
-uv sync
+python3 -m venv .venv
+source .venv/bin/activate
+.venv/bin/pip install -r requirements.txt
 ```
 
 Runtime configuration is read from `.env`.
@@ -173,30 +191,16 @@ curl http://127.0.0.1:8000/state
 ### Local Development
 
 ```bash
+# Install dependencies
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+
 # Quick compile check
 PYTHONPYCACHEPREFIX=/tmp/pycache python3 -m py_compile \
   inference.py server/app.py server/helpdesk_environment.py
 
 # Run the server locally
-uv run server
-```
-
-`uv run server` smoke test:
-
-```bash
-curl http://127.0.0.1:8000/health
-
-curl http://127.0.0.1:8000/
-
-curl -X POST http://127.0.0.1:8000/reset \
-  -H "Content-Type: application/json" \
-  -d '{}'
-
-curl -X POST http://127.0.0.1:8000/step \
-  -H "Content-Type: application/json" \
-  -d '{"action":{"action_type":"classify","category":"payment_failure"}}'
-
-curl http://127.0.0.1:8000/state
+PYTHONPATH=.. .venv/bin/uvicorn helpdesk_env.server.app:app --host 127.0.0.1 --port 8000
 ```
 
 ### Run Inference

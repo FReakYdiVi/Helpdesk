@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+import uvicorn
 
 from .helpdesk_environment import HelpdeskEnv
 from ..models import Action, Reward
@@ -77,3 +78,11 @@ def step(body: Dict[str, Any]) -> Dict[str, Any]:
 def state() -> Dict[str, Any]:
     obs = get_env().state()
     return {"observation": obs.model_dump()}
+
+
+def main() -> None:
+    uvicorn.run("helpdesk_env.server.app:app", host="0.0.0.0", port=8000)
+
+
+if __name__ == "__main__":
+    main()

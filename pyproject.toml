@@ -24,7 +24,7 @@ dev = [
 ]
 
 [project.scripts]
-server = "helpdesk_env.server.app:app"
+server = "helpdesk_env.server.app:main"
 
 [tool.setuptools]
 include-package-data = true
