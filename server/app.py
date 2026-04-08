@@ -1098,6 +1098,11 @@ def root() -> HTMLResponse:
     return HTMLResponse(_ui_template())
 
 
+@app.get("/web", response_class=HTMLResponse)
+def web_dashboard() -> HTMLResponse:
+    return HTMLResponse(_ui_template())
+
+
 @app.get("/metadata")
 def metadata() -> Dict[str, Any]:
     return {
