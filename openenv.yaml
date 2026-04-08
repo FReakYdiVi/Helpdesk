@@ -28,13 +28,12 @@ tasks:
     max_steps: 1
     reward_range: [0.0, 1.0]
     grader:
-      type: python
-      reward_source: server.helpdesk_environment:HelpdeskEnv.step
-      score_field: reward.value
-      functions:
-        - graders.category_grader:grade_classification
-        - graders.resolution_grader:grade_resolution
-        - graders.score_utils:ensure_open_unit_interval
+      type: llm
+      prompt_template: >
+        Score the agent's performance for the easy helpdesk task on a scale from
+        0.001 to 0.999. Reward correct issue classification, safe behavior, and
+        efficient completion. Penalize incorrect categories, unsafe requests for
+        sensitive information, or invalid actions. Return only a numeric score.
 
   - id: medium
     difficulty: medium
@@ -43,14 +42,13 @@ tasks:
     max_steps: 3
     reward_range: [0.0, 1.0]
     grader:
-      type: python
-      reward_source: server.helpdesk_environment:HelpdeskEnv.step
-      score_field: reward.value
-      functions:
-        - graders.faq_grader:grade_faq_retrieval
-        - graders.faq_grader:grade_escalation
-        - graders.faq_grader:grade_operation_choice
-        - graders.score_utils:ensure_open_unit_interval
+      type: llm
+      prompt_template: >
+        Score the agent's performance for the medium helpdesk task on a scale
+        from 0.001 to 0.999. Reward selecting the correct FAQ or making the
+        correct escalation decision, while maintaining safe guidance and good
+        efficiency. Penalize incorrect retrieval, missed escalation, unsafe
+        behavior, or unnecessary extra steps. Return only a numeric score.
 
   - id: hard
     difficulty: hard
@@ -59,15 +57,13 @@ tasks:
     max_steps: 8
     reward_range: [0.0, 1.0]
     grader:
-      type: python
-      reward_source: server.helpdesk_environment:HelpdeskEnv.step
-      score_field: reward.value
-      functions:
-        - graders.category_grader:grade_information_collection
-        - graders.faq_grader:grade_faq_retrieval
-        - graders.resolution_grader:grade_case_closure
-        - graders.resolution_grader:grade_resolution
-        - graders.score_utils:ensure_open_unit_interval
+      type: llm
+      prompt_template: >
+        Score the agent's performance for the hard helpdesk task on a scale from
+        0.001 to 0.999. Reward appropriate clarification, correct FAQ retrieval,
+        safe and useful guidance, and closing the case only when the issue is
+        actually resolved. Penalize unsafe behavior, premature closure, missing
+        clarification, or poor multi-turn handling. Return only a numeric score.
 
 observation_space:
   type: object
