@@ -18,13 +18,11 @@ type: space
 runtime: fastapi
 app: server.app:app
 port: 8000
-default_task: medium
 
 tasks:
   - id: easy
     difficulty: easy
     description: Classify the customer's issue into the correct support category
-    dataset: data/tickets/easy.json
     max_steps: 1
     reward_range: [0.0, 1.0]
     grader:
@@ -38,7 +36,6 @@ tasks:
   - id: medium
     difficulty: medium
     description: Select the correct FAQ or escalate cases that require manual handling
-    dataset: data/tickets/medium.json
     max_steps: 3
     reward_range: [0.0, 1.0]
     grader:
@@ -53,7 +50,6 @@ tasks:
   - id: hard
     difficulty: hard
     description: Run a multi-turn support conversation with clarification, guidance, and safe closure
-    dataset: data/tickets/hard.json
     max_steps: 8
     reward_range: [0.0, 1.0]
     grader:

@@ -1,6 +1,6 @@
 """FastAPI server exposing HelpdeskEnv over HTTP."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -12,6 +12,61 @@ from ..models import Action, Reward, normalize_action
 app = FastAPI(title="Helpdesk OpenEnv")
 _env: Optional[HelpdeskEnv] = None
 
+TASKS: List[Dict[str, Any]] = [
+    {
+        "id": "easy",
+        "difficulty": "easy",
+        "description": "Classify the customer's issue into the correct support category.",
+        "max_steps": 1,
+        "grader": {
+            "type": "llm",
+            "prompt_template": (
+                "Score the agent's performance for the easy helpdesk task on a scale "
+                "from 0.001 to 0.999. Reward correct issue classification, safe "
+                "behavior, and efficient completion. Penalize incorrect categories, "
+                "unsafe requests for sensitive information, or invalid actions. "
+                "Return only a numeric score."
+            ),
+        },
+    },
+    {
+        "id": "medium",
+        "difficulty": "medium",
+        "description": "Select the correct FAQ or escalate cases that require manual handling.",
+        "max_steps": 3,
+        "grader": {
+            "type": "llm",
+            "prompt_template": (
+                "Score the agent's performance for the medium helpdesk task on a scale "
+                "from 0.001 to 0.999. Reward selecting the correct FAQ or making the "
+                "correct escalation decision, while maintaining safe guidance and good "
+                "efficiency. Penalize incorrect retrieval, missed escalation, unsafe "
+                "behavior, or unnecessary extra steps. Return only a numeric score."
+            ),
+        },
+    },
+    {
+        "id": "hard",
+        "difficulty": "hard",
+        "description": (
+            "Run a multi-turn support conversation with clarification, guidance, "
+            "and safe closure."
+        ),
+        "max_steps": 8,
+        "grader": {
+            "type": "llm",
+            "prompt_template": (
+                "Score the agent's performance for the hard helpdesk task on a scale "
+                "from 0.001 to 0.999. Reward appropriate clarification, correct FAQ "
+                "retrieval, safe and useful guidance, and closing the case only when "
+                "the issue is actually resolved. Penalize unsafe behavior, premature "
+                "closure, missing clarification, or poor multi-turn handling. Return "
+                "only a numeric score."
+            ),
+        },
+    },
+]
+
 
 def get_env() -> HelpdeskEnv:
     global _env
@@ -21,7 +76,7 @@ def get_env() -> HelpdeskEnv:
 
 
 class ResetBody(BaseModel):
-    task_id: str = "easy"
+    task_id: Literal["easy", "medium", "hard"] = "easy"
 
 
 def _zero_reward() -> Dict[str, Any]:
@@ -47,8 +102,23 @@ def root() -> Dict[str, Any]:
     return {
         "name": "UPI Banking Support Environment",
         "status": "running",
-        "endpoints": ["/health", "/reset", "/step", "/state"],
+        "endpoints": ["/health", "/metadata", "/tasks", "/reset", "/step", "/state"],
     }
+
+
+@app.get("/metadata")
+def metadata() -> Dict[str, Any]:
+    return {
+        "name": "helpdesk_env",
+        "description": "UPI banking customer support environment with 3 graded tasks.",
+        "task_count": len(TASKS),
+        "tasks": TASKS,
+    }
+
+
+@app.get("/tasks")
+def tasks() -> Dict[str, Any]:
+    return {"tasks": TASKS}
 
 
 @app.post("/reset")
