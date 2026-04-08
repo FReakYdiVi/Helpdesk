@@ -338,7 +338,7 @@ This repo is configured as a Docker-based HF Space through the YAML frontmatter 
 - `tags` include `openenv`
 
 Live Space:
-- https://huggingface.co/spaces/Freakdivi/HelpDesk
+- https://huggingface.co/spaces/Freakdivi/helpdesk_env
 
 
 ## Baseline Scores
