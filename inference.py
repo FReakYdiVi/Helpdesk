@@ -72,8 +72,11 @@ HF_SPACE_TOKEN = os.getenv("HF_SPACE_TOKEN", "")
 TASK_NAME = os.getenv("TASK_NAME", "all")
 BENCHMARK = os.getenv("BENCHMARK", "helpdesk_env")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0"))
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", "180"))
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", "120"))
 SUCCESS_SCORE_THRESHOLD = float(os.getenv("SUCCESS_SCORE_THRESHOLD", "0.50"))
+DISCOUNT_GAMMA = 0.9
+KB_CANDIDATE_LIMIT = 6
+REQUEST_TIMEOUT_SECONDS = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "8"))
 
 MAX_STEPS_BY_TASK = {
     "easy": 1,
@@ -82,6 +85,7 @@ MAX_STEPS_BY_TASK = {
 }
 
 SUPPORTED_TASKS = ("easy", "medium", "hard")
+CURRENT_SCORE_METHOD = "single"
 
 SYSTEM_PROMPT_BASE = (
     "You are a banking customer support agent for a UPI payments app. "
@@ -127,6 +131,100 @@ def build_user_prompt(task_id: str, observation_json: str, history: List[str]) -
         Return the next action as one JSON object only.
         """
     ).strip()
+
+
+def _tokenize_text(text: str) -> List[str]:
+    cleaned = []
+    for raw in text.lower().replace("/", " ").replace("_", " ").split():
+        token = "".join(ch for ch in raw if ch.isalnum())
+        if len(token) >= 3:
+            cleaned.append(token)
+    return cleaned
+
+
+def _compact_text(text: str, limit: int) -> str:
+    normalized = " ".join(text.split())
+    if len(normalized) <= limit:
+        return normalized
+    return normalized[: limit - 3].rstrip() + "..."
+
+
+def _score_faq_candidate(entry: Dict[str, Any], query_terms: List[str]) -> int:
+    searchable_parts = [
+        str(entry.get("faq_id") or entry.get("id") or ""),
+        str(entry.get("category") or ""),
+        str(entry.get("title") or entry.get("question") or ""),
+        str(entry.get("content") or entry.get("answer") or ""),
+        " ".join(str(tag) for tag in entry.get("tags", []) if isinstance(tag, str)),
+    ]
+    searchable_text = " ".join(searchable_parts).lower()
+    return sum(3 if term in searchable_text else 0 for term in query_terms)
+
+
+def _candidate_faqs(observation: Any, history: List[str], limit: int = KB_CANDIDATE_LIMIT) -> List[Dict[str, Any]]:
+    query_terms = _tokenize_text(
+        " ".join(
+            [
+                observation.customer_message,
+                *[turn.get("content", "") for turn in observation.conversation_history[-4:]],
+                *history[-4:],
+            ]
+        )
+    )
+    scored_entries: List[Tuple[int, int, Dict[str, Any]]] = []
+    for index, entry in enumerate(observation.knowledge_base):
+        score = _score_faq_candidate(entry, query_terms)
+        scored_entries.append((score, -index, entry))
+
+    ranked_entries = [
+        entry
+        for score, _neg_index, entry in sorted(scored_entries, reverse=True)
+        if score > 0
+    ]
+    fallback_entries = [entry for _score, _neg_index, entry in sorted(scored_entries, reverse=True)]
+    selected = (ranked_entries or fallback_entries)[:limit]
+
+    compact_entries: List[Dict[str, Any]] = []
+    for entry in selected:
+        compact_entries.append(
+            {
+                "faq_id": entry.get("faq_id") or entry.get("id"),
+                "category": entry.get("category"),
+                "title": entry.get("title") or entry.get("question"),
+                "content": _compact_text(
+                    str(entry.get("content") or entry.get("answer") or ""),
+                    220,
+                ),
+                "tags": entry.get("tags", [])[:5],
+            }
+        )
+    return compact_entries
+
+
+def _serialize_observation(task_id: str, observation: Any, history: List[str]) -> str:
+    payload: Dict[str, Any] = {
+        "case_id": observation.case_id,
+        "task_id": task_id,
+        "turn_number": observation.turn_number,
+        "customer_message": observation.customer_message,
+        "conversation_history": observation.conversation_history[-4:],
+        "required_slots": observation.required_slots,
+    }
+
+    if task_id == "easy":
+        payload["available_categories"] = observation.available_categories
+    else:
+        payload["knowledge_base"] = _candidate_faqs(observation, history)
+
+    if task_id == "hard":
+        payload["clarification_received"] = observation.known_facts.get(
+            "clarification_received", False
+        )
+        payload["faq_retrieved"] = observation.known_facts.get("faq_retrieved", False)
+        payload["issue_resolved"] = observation.known_facts.get("issue_resolved", False)
+        payload["collected_slots"] = observation.known_facts.get("collected_slots", {})
+
+    return json.dumps(payload, separators=(",", ":"), ensure_ascii=True)
 
 
 def log_start(task: str, env: str, model: str) -> None:
@@ -192,6 +290,8 @@ def _normalize_action_type(raw: object) -> Optional[ActionType]:
 
 
 def _fallback_action(task_id: str, turn_number: int) -> Dict[str, Any]:
+    # Fallback actions are only for genuine parse failures or runtime exceptions.
+    # They must stay conservative and must not act as a scoring strategy.
     if task_id == "easy":
         return {"action_type": "classify", "category": "payment_failure"}
     if task_id == "medium":
@@ -202,7 +302,10 @@ def _fallback_action(task_id: str, turn_number: int) -> Dict[str, Any]:
             "message": "Please share the UTR, amount, and exact issue.",
         }
     if turn_number == 1:
-        return {"action_type": "lookup_faq", "faq_id": "faq_001"}
+        return {
+            "action_type": "escalate",
+            "message": "Unable to process request. Escalating for manual review.",
+        }
     if turn_number in (2, 3):
         return {
             "action_type": "reply",
@@ -279,6 +382,8 @@ def _resolve_requested_tasks(task_name: str) -> List[str]:
 
 
 def _run_task(client: OpenAI, task_id: str) -> None:
+    global CURRENT_SCORE_METHOD
+
     env = HelpdeskEnv()
 
     history: List[str] = []
@@ -286,6 +391,7 @@ def _run_task(client: OpenAI, task_id: str) -> None:
     steps_taken = 0
     score = ensure_open_unit_interval(0.0)
     success = False
+    CURRENT_SCORE_METHOD = "single"
 
     log_start(task=task_id, env=BENCHMARK, model=MODEL_NAME)
 
@@ -302,7 +408,7 @@ def _run_task(client: OpenAI, task_id: str) -> None:
                 raw_action = get_model_action(
                     client=client,
                     task_id=task_id,
-                    observation_json=observation.model_dump_json(),
+                    observation_json=_serialize_observation(task_id, observation, history),
                     history=history,
                     turn_number=observation.turn_number,
                 )
@@ -329,7 +435,22 @@ def _run_task(client: OpenAI, task_id: str) -> None:
             steps_taken = step
             history.append(f"step={step} action={action_str} reward={reward_value:.2f}")
 
-        score = ensure_open_unit_interval(sum(rewards) / len(rewards) if rewards else 0.0)
+        if task_id == "easy":
+            CURRENT_SCORE_METHOD = "single"
+            raw_score = rewards[-1] if rewards else 0.0
+        elif task_id == "medium":
+            CURRENT_SCORE_METHOD = "terminal"
+            raw_score = rewards[-1] if rewards else 0.0
+        else:
+            CURRENT_SCORE_METHOD = "discounted"
+            discount_weights = [DISCOUNT_GAMMA**t for t in range(len(rewards))]
+            discounted_sum = sum(
+                reward * weight for reward, weight in zip(rewards, discount_weights)
+            )
+            normalizer = sum(discount_weights)
+            raw_score = (discounted_sum / normalizer) if normalizer else 0.0
+
+        score = ensure_open_unit_interval(raw_score)
         success = score >= SUCCESS_SCORE_THRESHOLD
 
     finally:
@@ -342,7 +463,12 @@ def main() -> None:
             "Set API_KEY, OPENAI_API_KEY, or GROQ_API_KEY before running inference.py"
         )
 
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = OpenAI(
+        base_url=API_BASE_URL,
+        api_key=API_KEY,
+        timeout=REQUEST_TIMEOUT_SECONDS,
+        max_retries=0,
+    )
     for task_id in _resolve_requested_tasks(TASK_NAME):
         _run_task(client, task_id)
 

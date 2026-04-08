@@ -1,62 +1,402 @@
 [
   {
     "id": "faq_001",
+    "faq_id": "faq_001",
     "category": "payment_failure",
     "question": "What should I do if a UPI payment failed but money was debited?",
-    "answer": "If the payment status shows failed but the amount was debited, ask the customer to wait up to 24 hours for an automatic reversal. Collect the UTR, amount, and transaction time. Escalate only if the debit is not reversed after the standard window."
+    "title": "Payment failed but amount debited",
+    "answer": "If the payment status shows failed but the amount was debited, ask the customer to wait up to 24 hours for an automatic reversal. Collect the UTR, amount, and transaction time. Escalate only if the debit is not reversed after the standard window.",
+    "content": "If the payment status shows failed but the amount was debited, ask the customer to wait up to 24 hours for an automatic reversal. Collect the UTR, amount, and transaction time. Escalate only if the debit is not reversed after the standard window.",
+    "tags": ["payment_failed", "debited", "reversal", "utr"]
   },
   {
     "id": "faq_002",
+    "faq_id": "faq_002",
     "category": "payment_failure",
     "question": "What if the merchant says payment was not received even though the customer paid?",
-    "answer": "Ask for the UTR, merchant name, amount, and time of payment. If the transaction is pending or processing, advise the customer to wait for final status. If the status remains unresolved beyond the expected window, raise a payments investigation."
+    "title": "Merchant not received payment",
+    "answer": "Ask for the UTR, merchant name, amount, and time of payment. If the transaction is pending or processing, advise the customer to wait for final status. If the status remains unresolved beyond the expected window, raise a payments investigation.",
+    "content": "Ask for the UTR, merchant name, amount, and time of payment. If the transaction is pending or processing, advise the customer to wait for final status. If the status remains unresolved beyond the expected window, raise a payments investigation.",
+    "tags": ["merchant", "pending", "utr", "investigation"]
   },
   {
     "id": "faq_003",
+    "faq_id": "faq_003",
     "category": "refund_delay",
     "question": "How should support handle a delayed refund in a UPI app?",
-    "answer": "Confirm the original transaction reference, refund reference if available, amount, and merchant name. Inform the customer that refunds may take several business days depending on the bank and merchant. Escalate when the refund exceeds the documented turnaround time."
+    "title": "Delayed refund support flow",
+    "answer": "Confirm the original transaction reference, refund reference if available, amount, and merchant name. Inform the customer that refunds may take several business days depending on the bank and merchant. Escalate when the refund exceeds the documented turnaround time.",
+    "content": "Confirm the original transaction reference, refund reference if available, amount, and merchant name. Inform the customer that refunds may take several business days depending on the bank and merchant. Escalate when the refund exceeds the documented turnaround time.",
+    "tags": ["refund", "merchant", "timeline", "reference"]
   },
   {
     "id": "faq_004",
+    "faq_id": "faq_004",
     "category": "refund_delay",
     "question": "What if the merchant claims a refund was completed but the customer has not received it?",
-    "answer": "Verify the refund date, amount, merchant, and UTR or ARN if shared by the merchant. Check whether the refund is still in progress at the bank side. Escalate when the refund is marked complete but remains uncredited past the expected settlement window."
+    "title": "Refund marked complete but not credited",
+    "answer": "Verify the refund date, amount, merchant, and UTR or ARN if shared by the merchant. Check whether the refund is still in progress at the bank side. Escalate when the refund is marked complete but remains uncredited past the expected settlement window.",
+    "content": "Verify the refund date, amount, merchant, and UTR or ARN if shared by the merchant. Check whether the refund is still in progress at the bank side. Escalate when the refund is marked complete but remains uncredited past the expected settlement window.",
+    "tags": ["refund_complete", "bank_side", "credited", "arn"]
   },
   {
     "id": "faq_005",
+    "faq_id": "faq_005",
     "category": "fraud_complaint",
     "question": "How should an unauthorized UPI transaction be handled?",
-    "answer": "Treat unauthorized payment reports as high priority. Do not ask for PIN, OTP, CVV, or full card details. Advise the customer to secure the account immediately, verify recent activity, and escalate to the fraud team for formal review."
+    "title": "Unauthorized UPI transaction",
+    "answer": "Treat unauthorized payment reports as high priority. Do not ask for PIN, OTP, CVV, or full card details. Advise the customer to secure the account immediately, verify recent activity, and escalate to the fraud team for formal review.",
+    "content": "Treat unauthorized payment reports as high priority. Do not ask for PIN, OTP, CVV, or full card details. Advise the customer to secure the account immediately, verify recent activity, and escalate to the fraud team for formal review.",
+    "tags": ["unauthorized", "fraud", "secure_account", "escalation"]
   },
   {
     "id": "faq_006",
+    "faq_id": "faq_006",
     "category": "kyc_account_restriction",
     "question": "What should support say when a wallet or account is restricted due to KYC issues?",
-    "answer": "Explain whether the restriction is due to pending, expired, or failed KYC verification. Ask the customer to confirm the registered details and complete the required KYC steps in-app. Escalate only if the account remains restricted after successful verification or manual review is needed."
+    "title": "KYC restriction explanation",
+    "answer": "Explain whether the restriction is due to pending, expired, or failed KYC verification. Ask the customer to confirm the registered details and complete the required KYC steps in-app. Escalate only if the account remains restricted after successful verification or manual review is needed.",
+    "content": "Explain whether the restriction is due to pending, expired, or failed KYC verification. Ask the customer to confirm the registered details and complete the required KYC steps in-app. Escalate only if the account remains restricted after successful verification or manual review is needed.",
+    "tags": ["kyc", "restriction", "verification", "wallet"]
   },
   {
     "id": "faq_007",
+    "faq_id": "faq_007",
     "category": "kyc_account_restriction",
     "question": "What if a customer says their KYC was submitted but the account is still blocked?",
-    "answer": "Confirm when the documents were submitted and whether any rejection message is shown. If review is still in progress, provide the expected review timeline. Escalate to the KYC team if the review is overdue or the account is blocked despite successful verification."
+    "title": "KYC submitted but account blocked",
+    "answer": "Confirm when the documents were submitted and whether any rejection message is shown. If review is still in progress, provide the expected review timeline. Escalate to the KYC team if the review is overdue or the account is blocked despite successful verification.",
+    "content": "Confirm when the documents were submitted and whether any rejection message is shown. If review is still in progress, provide the expected review timeline. Escalate to the KYC team if the review is overdue or the account is blocked despite successful verification.",
+    "tags": ["kyc_submitted", "blocked", "review", "timeline"]
   },
   {
     "id": "faq_008",
+    "faq_id": "faq_008",
     "category": "upi_pin_or_bank_linking",
     "question": "How do you handle UPI PIN setup or reset issues safely?",
-    "answer": "Never ask for the customer’s UPI PIN or OTP. Confirm whether the SIM is active on the same device, whether the debit card details were entered correctly, and whether the bank is supported. Suggest retrying after checking SMS permissions and bank availability."
+    "title": "Safe UPI PIN setup guidance",
+    "answer": "Never ask for the customer’s UPI PIN or OTP. Confirm whether the SIM is active on the same device, whether the debit card details were entered correctly, and whether the bank is supported. Suggest retrying after checking SMS permissions and bank availability.",
+    "content": "Never ask for the customer’s UPI PIN or OTP. Confirm whether the SIM is active on the same device, whether the debit card details were entered correctly, and whether the bank is supported. Suggest retrying after checking SMS permissions and bank availability.",
+    "tags": ["upi_pin", "reset", "sms_permission", "bank_support"]
   },
   {
     "id": "faq_009",
+    "faq_id": "faq_009",
     "category": "upi_pin_or_bank_linking",
     "question": "What if the customer cannot link a bank account in the UPI app?",
-    "answer": "Check whether the registered mobile number matches the bank account, the SIM is present in the device, and the bank’s UPI service is currently available. Ask for the bank name and exact error message. Escalate only if the account remains unlinked after standard troubleshooting."
+    "title": "Bank account linking issues",
+    "answer": "Check whether the registered mobile number matches the bank account, the SIM is present in the device, and the bank’s UPI service is currently available. Ask for the bank name and exact error message. Escalate only if the account remains unlinked after standard troubleshooting.",
+    "content": "Check whether the registered mobile number matches the bank account, the SIM is present in the device, and the bank’s UPI service is currently available. Ask for the bank name and exact error message. Escalate only if the account remains unlinked after standard troubleshooting.",
+    "tags": ["bank_linking", "mobile_number", "sim", "error_message"]
   },
   {
     "id": "faq_010",
+    "faq_id": "faq_010",
     "category": "fraud_complaint",
     "question": "What if the customer clicked a scam collect request or shared app access?",
-    "answer": "Advise the customer to secure the account immediately, review recent transactions, and report the incident as potential fraud. Do not promise a refund. Escalate to the fraud team for investigation and next steps."
+    "title": "Scam collect request or remote access fraud",
+    "answer": "Advise the customer to secure the account immediately, review recent transactions, and report the incident as potential fraud. Do not promise a refund. Escalate to the fraud team for investigation and next steps.",
+    "content": "Advise the customer to secure the account immediately, review recent transactions, and report the incident as potential fraud. Do not promise a refund. Escalate to the fraud team for investigation and next steps.",
+    "tags": ["collect_request", "scam", "remote_access", "fraud"]
+  },
+  {
+    "id": "faq_011",
+    "faq_id": "faq_011",
+    "category": "payment_failure",
+    "question": "What should support do when a UPI transaction is stuck in pending status?",
+    "title": "Payment pending for a long time",
+    "answer": "Ask the customer for the UTR, amount, and approximate time of payment. Explain that pending transactions usually settle or reverse automatically within the bank-defined timeline, often within a few hours. Advise the customer not to retry immediately with the same merchant until the first payment gets a final status. Escalate only if the payment remains pending beyond the documented turnaround window.",
+    "content": "Ask the customer for the UTR, amount, and approximate time of payment. Explain that pending transactions usually settle or reverse automatically within the bank-defined timeline, often within a few hours. Advise the customer not to retry immediately with the same merchant until the first payment gets a final status. Escalate only if the payment remains pending beyond the documented turnaround window.",
+    "tags": ["pending", "utr", "settlement", "reversal"]
+  },
+  {
+    "id": "faq_012",
+    "faq_id": "faq_012",
+    "category": "payment_failure",
+    "question": "How should support handle a partial debit where the full order was not processed?",
+    "title": "Partial debit or incomplete payment",
+    "answer": "Verify the amount shown as debited, the merchant name, and whether the merchant generated multiple payment attempts. Tell the customer to check the final bank entry because some partial debits are temporary authorization holds rather than completed payments. If the merchant received less than expected or the amount remains blocked, raise a payment discrepancy investigation. Advise against repeated attempts until the first transaction outcome is clear.",
+    "content": "Verify the amount shown as debited, the merchant name, and whether the merchant generated multiple payment attempts. Tell the customer to check the final bank entry because some partial debits are temporary authorization holds rather than completed payments. If the merchant received less than expected or the amount remains blocked, raise a payment discrepancy investigation. Advise against repeated attempts until the first transaction outcome is clear.",
+    "tags": ["partial_debit", "authorization_hold", "merchant", "discrepancy"]
+  },
+  {
+    "id": "faq_013",
+    "faq_id": "faq_013",
+    "category": "payment_failure",
+    "question": "What if the customer entered the wrong VPA and the payment failed?",
+    "title": "Wrong VPA entered during payment",
+    "answer": "Confirm the VPA used and whether the app showed a validation or beneficiary mismatch error before payment completion. Explain that payments to an invalid or mistyped VPA often fail immediately and the amount usually does not settle. If an amount was debited despite the failure, ask for the UTR and wait for the standard reversal window. Suggest verifying the recipient VPA carefully before trying again.",
+    "content": "Confirm the VPA used and whether the app showed a validation or beneficiary mismatch error before payment completion. Explain that payments to an invalid or mistyped VPA often fail immediately and the amount usually does not settle. If an amount was debited despite the failure, ask for the UTR and wait for the standard reversal window. Suggest verifying the recipient VPA carefully before trying again.",
+    "tags": ["wrong_vpa", "beneficiary", "validation_error", "retry"]
+  },
+  {
+    "id": "faq_014",
+    "faq_id": "faq_014",
+    "category": "payment_failure",
+    "question": "How should support respond when a payment fails due to a bank timeout?",
+    "title": "Bank timeout during UPI payment",
+    "answer": "Let the customer know that bank-side timeouts can interrupt confirmation even when the request was sent successfully. Collect the UTR, amount, and bank name so the status can be tracked if needed. Ask the customer to wait for a final update instead of making repeated attempts immediately. Escalate only when the timeout issue remains unresolved after the normal settlement window.",
+    "content": "Let the customer know that bank-side timeouts can interrupt confirmation even when the request was sent successfully. Collect the UTR, amount, and bank name so the status can be tracked if needed. Ask the customer to wait for a final update instead of making repeated attempts immediately. Escalate only when the timeout issue remains unresolved after the normal settlement window.",
+    "tags": ["bank_timeout", "status_check", "utr", "settlement"]
+  },
+  {
+    "id": "faq_015",
+    "faq_id": "faq_015",
+    "category": "payment_failure",
+    "question": "What should support do when the app shows success but the bank statement does not?",
+    "title": "App success but no bank debit",
+    "answer": "Confirm whether the customer is viewing the correct linked bank account and whether the transaction is marked successful in the app history. Sometimes the app view updates before the bank statement refreshes fully, so advise checking again after some time. If the bank still shows no corresponding debit or credit after the refresh window, ask for screenshots and raise an internal reconciliation check. Avoid asking the customer to repeat the same payment until the status is reconciled.",
+    "content": "Confirm whether the customer is viewing the correct linked bank account and whether the transaction is marked successful in the app history. Sometimes the app view updates before the bank statement refreshes fully, so advise checking again after some time. If the bank still shows no corresponding debit or credit after the refresh window, ask for screenshots and raise an internal reconciliation check. Avoid asking the customer to repeat the same payment until the status is reconciled.",
+    "tags": ["app_success", "bank_statement", "reconciliation", "screenshots"]
+  },
+  {
+    "id": "faq_016",
+    "faq_id": "faq_016",
+    "category": "payment_failure",
+    "question": "How should support handle duplicate payment attempts after an earlier failure?",
+    "title": "Duplicate payment attempts after failure",
+    "answer": "Ask whether the customer retried the payment because the first attempt looked stuck or failed. Compare the timestamps, amounts, and merchant details to identify whether there are multiple unique transactions or one delayed update. Explain that repeated attempts can create confusion while the earlier payment is still settling. If multiple debits occurred, document both UTRs and raise a duplicate transaction review.",
+    "content": "Ask whether the customer retried the payment because the first attempt looked stuck or failed. Compare the timestamps, amounts, and merchant details to identify whether there are multiple unique transactions or one delayed update. Explain that repeated attempts can create confusion while the earlier payment is still settling. If multiple debits occurred, document both UTRs and raise a duplicate transaction review.",
+    "tags": ["duplicate_payment", "retry", "multiple_debits", "review"]
+  },
+  {
+    "id": "faq_017",
+    "faq_id": "faq_017",
+    "category": "payment_failure",
+    "question": "What if the merchant app timed out but the customer was charged?",
+    "title": "Merchant app timeout but amount charged",
+    "answer": "Confirm the merchant name, order ID if available, and the UTR from the payment app. Merchant-side timeouts may cause the order to appear unpaid even when the bank has already processed the transaction. Ask the customer to wait for the merchant to refresh payment status before placing a duplicate order. If the merchant still cannot confirm after the standard window, escalate for payment confirmation support.",
+    "content": "Confirm the merchant name, order ID if available, and the UTR from the payment app. Merchant-side timeouts may cause the order to appear unpaid even when the bank has already processed the transaction. Ask the customer to wait for the merchant to refresh payment status before placing a duplicate order. If the merchant still cannot confirm after the standard window, escalate for payment confirmation support.",
+    "tags": ["merchant_timeout", "order_id", "charged", "confirmation"]
+  },
+  {
+    "id": "faq_018",
+    "faq_id": "faq_018",
+    "category": "payment_failure",
+    "question": "How should support help when a collect request payment fails repeatedly?",
+    "title": "Collect request payment repeatedly failing",
+    "answer": "Ask whether the collect request is still active and whether the customer sees a failure code in the app. Repeated collect request failures can happen because of bank-side downtime, daily limits, or beneficiary-side issues. Suggest retrying only after checking the bank status and confirming the request details are correct. Escalate when the same collect request keeps failing despite bank availability and valid account details.",
+    "content": "Ask whether the collect request is still active and whether the customer sees a failure code in the app. Repeated collect request failures can happen because of bank-side downtime, daily limits, or beneficiary-side issues. Suggest retrying only after checking the bank status and confirming the request details are correct. Escalate when the same collect request keeps failing despite bank availability and valid account details.",
+    "tags": ["collect_request", "failure_code", "bank_status", "limits"]
+  },
+  {
+    "id": "faq_019",
+    "faq_id": "faq_019",
+    "category": "refund_delay",
+    "question": "What is the normal timeline for a merchant-initiated refund?",
+    "title": "Merchant refund settlement timeline",
+    "answer": "Explain that merchants can process refunds quickly on their side, but the final credit depends on bank settlement timelines. Ask the customer for the merchant refund date, amount, and any reference shared by the merchant. Advise that UPI-linked refunds may take several business days to appear, especially around weekends or holidays. Escalate only after the documented refund window has passed.",
+    "content": "Explain that merchants can process refunds quickly on their side, but the final credit depends on bank settlement timelines. Ask the customer for the merchant refund date, amount, and any reference shared by the merchant. Advise that UPI-linked refunds may take several business days to appear, especially around weekends or holidays. Escalate only after the documented refund window has passed.",
+    "tags": ["merchant_refund", "timeline", "business_days", "reference"]
+  },
+  {
+    "id": "faq_020",
+    "faq_id": "faq_020",
+    "category": "refund_delay",
+    "question": "How should support respond when only part of the refund is credited?",
+    "title": "Partial refund credited",
+    "answer": "Verify the original order amount, the refunded amount already received, and whether the order involved multiple items or fees. Some merchants split refunds into multiple parts, especially when shipping or discounts are adjusted separately. Ask the customer to confirm what the merchant promised to refund and whether more installments are pending. Escalate if the credited refund amount still does not match the merchant-confirmed breakup after the expected timeline.",
+    "content": "Verify the original order amount, the refunded amount already received, and whether the order involved multiple items or fees. Some merchants split refunds into multiple parts, especially when shipping or discounts are adjusted separately. Ask the customer to confirm what the merchant promised to refund and whether more installments are pending. Escalate if the credited refund amount still does not match the merchant-confirmed breakup after the expected timeline.",
+    "tags": ["partial_refund", "split_refund", "fees", "amount_mismatch"]
+  },
+  {
+    "id": "faq_021",
+    "faq_id": "faq_021",
+    "category": "refund_delay",
+    "question": "What if an auto-reversal has not reflected after a failed payment?",
+    "title": "Auto-reversal not reflected",
+    "answer": "Ask for the UTR, failed transaction time, and the amount that was debited. Explain that failed UPI payments are usually auto-reversed without merchant action, but the bank still needs time to post the reversal. Tell the customer to monitor the bank statement until the standard reversal cutoff. Escalate if the debit remains outstanding after the documented reversal period.",
+    "content": "Ask for the UTR, failed transaction time, and the amount that was debited. Explain that failed UPI payments are usually auto-reversed without merchant action, but the bank still needs time to post the reversal. Tell the customer to monitor the bank statement until the standard reversal cutoff. Escalate if the debit remains outstanding after the documented reversal period.",
+    "tags": ["auto_reversal", "failed_payment", "bank_statement", "cutoff"]
+  },
+  {
+    "id": "faq_022",
+    "faq_id": "faq_022",
+    "category": "refund_delay",
+    "question": "How should support help when the refund reference is not available?",
+    "title": "Refund without merchant reference",
+    "answer": "Ask for the original transaction details, merchant name, and the date when the refund was promised. If the merchant has not shared a refund reference, advise the customer to request one because it helps trace the refund status faster. Meanwhile, support can still document the order amount and settlement window. Escalate if the merchant continues to claim completion without sharing any traceable refund details.",
+    "content": "Ask for the original transaction details, merchant name, and the date when the refund was promised. If the merchant has not shared a refund reference, advise the customer to request one because it helps trace the refund status faster. Meanwhile, support can still document the order amount and settlement window. Escalate if the merchant continues to claim completion without sharing any traceable refund details.",
+    "tags": ["refund_reference", "merchant_claim", "traceability", "settlement"]
+  },
+  {
+    "id": "faq_023",
+    "faq_id": "faq_023",
+    "category": "refund_delay",
+    "question": "What if the refund was sent to a closed or inactive bank account?",
+    "title": "Refund routed to inactive account",
+    "answer": "Confirm which bank account was linked at the time of the original transaction and whether the customer has changed or closed that account recently. Refunds are generally routed back to the original source account, so account changes can delay final credit. Ask the customer to check with the bank if the old account is still receiving settlements or reversals internally. Escalate when the refund remains unresolved after both the merchant and bank checks are completed.",
+    "content": "Confirm which bank account was linked at the time of the original transaction and whether the customer has changed or closed that account recently. Refunds are generally routed back to the original source account, so account changes can delay final credit. Ask the customer to check with the bank if the old account is still receiving settlements or reversals internally. Escalate when the refund remains unresolved after both the merchant and bank checks are completed.",
+    "tags": ["inactive_account", "original_source", "bank_check", "refund_delay"]
+  },
+  {
+    "id": "faq_024",
+    "faq_id": "faq_024",
+    "category": "refund_delay",
+    "question": "How should support answer if the merchant says the refund was rejected by the bank?",
+    "title": "Refund rejected by bank",
+    "answer": "Ask the customer for the merchant communication, refund amount, and any rejection reason or reference provided. Explain that some refunds can fail at the bank stage if account details or settlement routing need correction. Advise the customer to ask the merchant to re-initiate the refund if the merchant confirms a bank rejection. Escalate if the merchant cannot provide evidence or the reprocessed refund still does not arrive.",
+    "content": "Ask the customer for the merchant communication, refund amount, and any rejection reason or reference provided. Explain that some refunds can fail at the bank stage if account details or settlement routing need correction. Advise the customer to ask the merchant to re-initiate the refund if the merchant confirms a bank rejection. Escalate if the merchant cannot provide evidence or the reprocessed refund still does not arrive.",
+    "tags": ["refund_rejected", "bank_rejection", "merchant_proof", "reprocess"]
+  },
+  {
+    "id": "faq_025",
+    "faq_id": "faq_025",
+    "category": "fraud_complaint",
+    "question": "How should support handle phishing links that asked for UPI details?",
+    "title": "Phishing link asking for UPI details",
+    "answer": "Advise the customer not to open the link again and to secure the account immediately if any suspicious prompts were completed. Check whether any unauthorized transactions occurred after the phishing attempt. Make it clear that support will never ask for PIN, OTP, or CVV over calls or messages. Escalate to the fraud team if the customer clicked the link and notices suspicious activity.",
+    "content": "Advise the customer not to open the link again and to secure the account immediately if any suspicious prompts were completed. Check whether any unauthorized transactions occurred after the phishing attempt. Make it clear that support will never ask for PIN, OTP, or CVV over calls or messages. Escalate to the fraud team if the customer clicked the link and notices suspicious activity.",
+    "tags": ["phishing", "suspicious_link", "secure_account", "fraud_team"]
+  },
+  {
+    "id": "faq_026",
+    "faq_id": "faq_026",
+    "category": "fraud_complaint",
+    "question": "What should support say when a customer paid via a fake QR code?",
+    "title": "Fake QR code payment scam",
+    "answer": "Ask when and where the QR code was scanned and whether the beneficiary name shown before payment matched the intended merchant. Explain that fake QR codes can redirect payments to fraudulent accounts even when the transaction completes normally. Advise the customer to collect any receipt, merchant evidence, or screenshots for investigation. Escalate immediately as a fraud complaint and avoid promising reversal until the review is complete.",
+    "content": "Ask when and where the QR code was scanned and whether the beneficiary name shown before payment matched the intended merchant. Explain that fake QR codes can redirect payments to fraudulent accounts even when the transaction completes normally. Advise the customer to collect any receipt, merchant evidence, or screenshots for investigation. Escalate immediately as a fraud complaint and avoid promising reversal until the review is complete.",
+    "tags": ["fake_qr", "merchant_name", "screenshots", "investigation"]
+  },
+  {
+    "id": "faq_027",
+    "faq_id": "faq_027",
+    "category": "fraud_complaint",
+    "question": "How should support handle repeated small unauthorized transactions?",
+    "title": "Multiple small unauthorized debits",
+    "answer": "Treat repeated small debits as suspicious even if each amount is low. Ask the customer to review recent transactions and identify the first unknown debit so the fraud review has a clear timeline. Advise immediate account security steps and watch for any pending collect requests or autopay mandates. Escalate the case to fraud with the full list of unauthorized entries.",
+    "content": "Treat repeated small debits as suspicious even if each amount is low. Ask the customer to review recent transactions and identify the first unknown debit so the fraud review has a clear timeline. Advise immediate account security steps and watch for any pending collect requests or autopay mandates. Escalate the case to fraud with the full list of unauthorized entries.",
+    "tags": ["small_debits", "timeline", "autopay", "fraud_review"]
+  },
+  {
+    "id": "faq_028",
+    "faq_id": "faq_028",
+    "category": "fraud_complaint",
+    "question": "What if a customer suspects SIM swap fraud before noticing payment issues?",
+    "title": "Possible SIM swap fraud",
+    "answer": "Ask whether the customer suddenly lost mobile network access or noticed unusual SIM reactivation messages. Explain that a SIM swap can impact OTP delivery and account recovery flows, making it a serious security concern. Advise the customer to contact the mobile operator immediately and secure banking access from trusted channels. Escalate to the fraud team even if no unauthorized payment is visible yet.",
+    "content": "Ask whether the customer suddenly lost mobile network access or noticed unusual SIM reactivation messages. Explain that a SIM swap can impact OTP delivery and account recovery flows, making it a serious security concern. Advise the customer to contact the mobile operator immediately and secure banking access from trusted channels. Escalate to the fraud team even if no unauthorized payment is visible yet.",
+    "tags": ["sim_swap", "network_loss", "security", "escalation"]
+  },
+  {
+    "id": "faq_029",
+    "faq_id": "faq_029",
+    "category": "fraud_complaint",
+    "question": "How should support respond if the customer shared screen access with a scammer?",
+    "title": "Remote screen-sharing scam",
+    "answer": "Tell the customer to uninstall any suspicious remote access apps and change account access from a trusted device. Screen-sharing scams often expose transaction approvals or account controls without the customer realizing the risk. Ask the customer to review recent transactions and device permissions immediately. Escalate to fraud if there is any sign of unauthorized activity or remote configuration changes.",
+    "content": "Tell the customer to uninstall any suspicious remote access apps and change account access from a trusted device. Screen-sharing scams often expose transaction approvals or account controls without the customer realizing the risk. Ask the customer to review recent transactions and device permissions immediately. Escalate to fraud if there is any sign of unauthorized activity or remote configuration changes.",
+    "tags": ["screen_share", "remote_access", "device_permissions", "unauthorized"]
+  },
+  {
+    "id": "faq_030",
+    "faq_id": "faq_030",
+    "category": "fraud_complaint",
+    "question": "What should support do when a customer reports an unknown autopay or mandate charge?",
+    "title": "Unknown UPI autopay or mandate charge",
+    "answer": "Ask the customer to identify the merchant or subscription name associated with the debit, if visible. Unknown autopay charges may indicate either forgotten subscriptions or unauthorized mandate creation. Advise the customer to review active mandates in the app and cancel any unfamiliar ones after confirming the details. Escalate to fraud when the merchant, mandate setup, or debit pattern appears suspicious.",
+    "content": "Ask the customer to identify the merchant or subscription name associated with the debit, if visible. Unknown autopay charges may indicate either forgotten subscriptions or unauthorized mandate creation. Advise the customer to review active mandates in the app and cancel any unfamiliar ones after confirming the details. Escalate to fraud when the merchant, mandate setup, or debit pattern appears suspicious.",
+    "tags": ["autopay", "mandate", "subscription", "suspicious_debit"]
+  },
+  {
+    "id": "faq_031",
+    "faq_id": "faq_031",
+    "category": "kyc_account_restriction",
+    "question": "How should support guide a customer who has not linked PAN for full KYC?",
+    "title": "PAN linking required for KYC",
+    "answer": "Explain clearly if PAN is mandatory for the current wallet or account level the customer wants to use. Ask the customer to verify that the PAN name and date of birth match the account profile exactly. If the PAN submission keeps failing, suggest checking for spelling mismatches or outdated records before retrying. Escalate when the customer has valid details but the app still rejects the PAN repeatedly.",
+    "content": "Explain clearly if PAN is mandatory for the current wallet or account level the customer wants to use. Ask the customer to verify that the PAN name and date of birth match the account profile exactly. If the PAN submission keeps failing, suggest checking for spelling mismatches or outdated records before retrying. Escalate when the customer has valid details but the app still rejects the PAN repeatedly.",
+    "tags": ["pan", "full_kyc", "profile_match", "submission_failure"]
+  },
+  {
+    "id": "faq_032",
+    "faq_id": "faq_032",
+    "category": "kyc_account_restriction",
+    "question": "What if Aadhaar verification fails during KYC completion?",
+    "title": "Aadhaar verification failed",
+    "answer": "Ask whether the customer saw a mismatch message, biometric issue, or a temporary service error during verification. Explain that Aadhaar verification can fail if the entered profile details do not match the issuing records or if the verification service is temporarily unavailable. Advise retrying only after confirming the details shown in the app profile. Escalate when repeated failures continue despite correct identity details.",
+    "content": "Ask whether the customer saw a mismatch message, biometric issue, or a temporary service error during verification. Explain that Aadhaar verification can fail if the entered profile details do not match the issuing records or if the verification service is temporarily unavailable. Advise retrying only after confirming the details shown in the app profile. Escalate when repeated failures continue despite correct identity details.",
+    "tags": ["aadhaar", "verification_failed", "mismatch", "service_error"]
+  },
+  {
+    "id": "faq_033",
+    "faq_id": "faq_033",
+    "category": "kyc_account_restriction",
+    "question": "How should support explain account limits on minimum KYC accounts?",
+    "title": "Minimum KYC account limits",
+    "answer": "Explain that some account or wallet features stay restricted until full KYC is completed, even if the account can still be used for limited actions. Tell the customer what limits apply, such as balance caps or reduced usage for certain services. Direct the customer to the in-app KYC upgrade flow if they want higher limits. Escalate only if the shown limits do not match the documented account tier.",
+    "content": "Explain that some account or wallet features stay restricted until full KYC is completed, even if the account can still be used for limited actions. Tell the customer what limits apply, such as balance caps or reduced usage for certain services. Direct the customer to the in-app KYC upgrade flow if they want higher limits. Escalate only if the shown limits do not match the documented account tier.",
+    "tags": ["minimum_kyc", "limits", "wallet_tier", "upgrade"]
+  },
+  {
+    "id": "faq_034",
+    "faq_id": "faq_034",
+    "category": "kyc_account_restriction",
+    "question": "What if the customer completed video KYC but the account remains limited?",
+    "title": "Video KYC completed but not updated",
+    "answer": "Ask when the video KYC was completed and whether the app shows any pending review notice. Some video KYC flows require backend review before the account status updates everywhere. Advise the customer to wait for the standard review period and avoid repeating the same verification unless instructed by the app. Escalate if the review period has passed and the limits are still unchanged.",
+    "content": "Ask when the video KYC was completed and whether the app shows any pending review notice. Some video KYC flows require backend review before the account status updates everywhere. Advise the customer to wait for the standard review period and avoid repeating the same verification unless instructed by the app. Escalate if the review period has passed and the limits are still unchanged.",
+    "tags": ["video_kyc", "pending_review", "account_limits", "status_update"]
+  },
+  {
+    "id": "faq_035",
+    "faq_id": "faq_035",
+    "category": "kyc_account_restriction",
+    "question": "How should support respond if the app says KYC expired?",
+    "title": "KYC expired and account restricted",
+    "answer": "Explain that KYC expiry can reintroduce account restrictions until the customer refreshes the required documents or verification steps. Ask the customer to check the in-app prompt for the exact renewal requirement. If the renewal flow fails, note the document type and the error shown so troubleshooting is accurate. Escalate if the customer has already renewed KYC but the expiration status remains unchanged.",
+    "content": "Explain that KYC expiry can reintroduce account restrictions until the customer refreshes the required documents or verification steps. Ask the customer to check the in-app prompt for the exact renewal requirement. If the renewal flow fails, note the document type and the error shown so troubleshooting is accurate. Escalate if the customer has already renewed KYC but the expiration status remains unchanged.",
+    "tags": ["kyc_expired", "renewal", "documents", "restriction"]
+  },
+  {
+    "id": "faq_036",
+    "faq_id": "faq_036",
+    "category": "kyc_account_restriction",
+    "question": "What if a customer's account is restricted for document mismatch after KYC review?",
+    "title": "KYC document mismatch restriction",
+    "answer": "Ask which document was used and whether the rejection reason mentions name, date of birth, or address mismatch. Explain that even small profile mismatches can trigger restrictions until corrected details are submitted. Guide the customer to update the profile or resubmit the correct document set in-app. Escalate if the customer has already matched the details but the restriction persists after review.",
+    "content": "Ask which document was used and whether the rejection reason mentions name, date of birth, or address mismatch. Explain that even small profile mismatches can trigger restrictions until corrected details are submitted. Guide the customer to update the profile or resubmit the correct document set in-app. Escalate if the customer has already matched the details but the restriction persists after review.",
+    "tags": ["document_mismatch", "rejection_reason", "profile_update", "review"]
+  },
+  {
+    "id": "faq_037",
+    "faq_id": "faq_037",
+    "category": "upi_pin_or_bank_linking",
+    "question": "How should support help when a customer cannot reset the UPI PIN?",
+    "title": "UPI PIN reset not working",
+    "answer": "Confirm whether the customer is using the registered SIM on the same device and whether the bank debit card details are being accepted by the bank. Remind the customer never to share the PIN or OTP with anyone, including support. Suggest retrying after checking SMS permissions and bank service availability. Escalate if the reset flow fails repeatedly despite correct bank card details and an active registered number.",
+    "content": "Confirm whether the customer is using the registered SIM on the same device and whether the bank debit card details are being accepted by the bank. Remind the customer never to share the PIN or OTP with anyone, including support. Suggest retrying after checking SMS permissions and bank service availability. Escalate if the reset flow fails repeatedly despite correct bank card details and an active registered number.",
+    "tags": ["pin_reset", "registered_sim", "sms_permission", "debit_card"]
+  },
+  {
+    "id": "faq_038",
+    "faq_id": "faq_038",
+    "category": "upi_pin_or_bank_linking",
+    "question": "What if the customer's bank is not listed during account linking?",
+    "title": "Bank not listed in UPI linking flow",
+    "answer": "Ask the customer to confirm the exact bank name and whether the bank supports UPI on that account type. Explain that some small banks or account variants may not appear if support is temporarily unavailable or not yet onboarded in the app. Suggest checking for bank availability later and ensuring the mobile number is linked at the bank. Escalate only if the bank is officially supported but consistently missing from the list.",
+    "content": "Ask the customer to confirm the exact bank name and whether the bank supports UPI on that account type. Explain that some small banks or account variants may not appear if support is temporarily unavailable or not yet onboarded in the app. Suggest checking for bank availability later and ensuring the mobile number is linked at the bank. Escalate only if the bank is officially supported but consistently missing from the list.",
+    "tags": ["bank_not_listed", "upi_support", "mobile_linked", "availability"]
+  },
+  {
+    "id": "faq_039",
+    "faq_id": "faq_039",
+    "category": "upi_pin_or_bank_linking",
+    "question": "How should support guide customers with multiple bank accounts on the same mobile number?",
+    "title": "Multiple bank accounts linked to one number",
+    "answer": "Explain that the app may show more than one eligible account if the same mobile number is registered across multiple banks. Ask the customer to choose the intended account carefully before setting the primary UPI account. If one expected account is missing, verify that the mobile number is active for that bank and the account supports UPI transactions. Escalate only when a supported eligible account never appears despite correct registration.",
+    "content": "Explain that the app may show more than one eligible account if the same mobile number is registered across multiple banks. Ask the customer to choose the intended account carefully before setting the primary UPI account. If one expected account is missing, verify that the mobile number is active for that bank and the account supports UPI transactions. Escalate only when a supported eligible account never appears despite correct registration.",
+    "tags": ["multiple_accounts", "registered_number", "primary_account", "eligibility"]
+  },
+  {
+    "id": "faq_040",
+    "faq_id": "faq_040",
+    "category": "upi_pin_or_bank_linking",
+    "question": "What if bank linking fails after the customer changed their phone recently?",
+    "title": "Bank linking issues after phone change",
+    "answer": "Ask whether the registered SIM is inserted in the new phone and whether SMS permissions and default messaging access are enabled. Linking can fail after a device change if the verification SMS cannot be sent from the registered number properly. Advise the customer to retry from the phone that has the active registered SIM and stable network coverage. Escalate if linking still fails after the device checks and the bank is otherwise available.",
+    "content": "Ask whether the registered SIM is inserted in the new phone and whether SMS permissions and default messaging access are enabled. Linking can fail after a device change if the verification SMS cannot be sent from the registered number properly. Advise the customer to retry from the phone that has the active registered SIM and stable network coverage. Escalate if linking still fails after the device checks and the bank is otherwise available.",
+    "tags": ["phone_change", "registered_sim", "network", "linking_failure"]
   }
 ]

@@ -43,10 +43,66 @@ The current support tracks are:
 - `upi_pin_or_bank_linking`
 
 The dataset includes:
-- 10 banking FAQ entries in [data/knowledge_base.json](data/knowledge_base.json)
+- 40 banking FAQ entries in [data/knowledge_base.json](data/knowledge_base.json)
 - 10 `easy` tickets in [data/tickets/easy.json](data/tickets/easy.json)
 - 10 `medium` tickets in [data/tickets/medium.json](data/tickets/medium.json)
 - 10 `hard` tickets in [data/tickets/hard.json](data/tickets/hard.json)
+
+## Architecture
+
+The environment is organized around a small set of components that work together during each episode:
+
+```text
+Ticket datasets + knowledge base
+data/tickets/*.json + data/knowledge_base.json
+                |
+                v
+HelpdeskEnv
+server/helpdesk_environment.py
+reset() / step() / state()
+                |
+                +------------------------+
+                |                        |
+                v                        v
+Observation for agent         UserSimulator for hard tasks
+models.py                     user_simulator.py
+                |                        |
+                +-----------+------------+
+                            |
+                            v
+Inference agent loop
+inference.py
+model call -> action -> normalized action
+                            |
+                            v
+Graders + reward shaping
+graders/*.py + reward logic in HelpdeskEnv
+correctness / safety / resolution / efficiency / penalties
+                            |
+                            v
+Per-step reward + final episode score
+```
+
+How it works in practice:
+
+1. A task split such as `easy`, `medium`, or `hard` selects a ticket from the dataset.
+2. [server/helpdesk_environment.py](server/helpdesk_environment.py) builds the observation and tracks hidden gold state.
+3. [inference.py](inference.py) sends a compact task-specific prompt to the model and converts the reply into a valid action.
+4. The environment applies the action, updates the conversation state, and calls the relevant grading logic.
+5. For `hard` tasks, [user_simulator.py](user_simulator.py) produces realistic follow-up user responses.
+6. The environment returns a shaped reward, and `inference.py` aggregates the episode score by task type.
+
+## Why JSON Knowledge Base
+
+We use a JSON knowledge base instead of an LLM-backed knowledge source for a few practical reasons:
+
+- It gives a fixed source of truth for FAQ retrieval and evaluation.
+- It makes matching the predicted FAQ against the gold FAQ simple and deterministic.
+- It is easier to audit, expand, and maintain across categories and tags.
+- It avoids adding extra model variance, latency, and cost inside the environment itself.
+- It keeps retrieval quality and safe guidance grounded in controlled support content.
+
+LLMs are still useful on top of the JSON knowledge base for response generation or judging nuanced outputs, but the knowledge source itself is intentionally structured and deterministic.
 
 ## Action Space
 
@@ -113,6 +169,21 @@ Examples:
 - correct escalation gives reward on `medium`
 - clarification plus guidance plus successful closure raises `hard` reward
 - unsafe prompts such as asking for PIN or OTP reduce reward sharply
+
+## Inference Scoring
+
+`inference.py` aggregates episode rewards differently for each task:
+
+- `easy`: single-step scoring. Final score is the reward from the one step taken.
+- `medium`: terminal-step scoring. Intermediate rewards are logged, but the final score is the reward from the last step taken.
+- `hard`: discounted scoring. Final score is the normalized discounted cumulative reward:
+
+```text
+score = sum(reward_t * gamma^t for t, reward_t in enumerate(rewards))
+        / sum(gamma^t for t in range(len(rewards)))
+```
+
+with `gamma = 0.9`.
 
 ## Task Difficulty
 
