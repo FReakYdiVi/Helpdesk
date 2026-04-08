@@ -67,9 +67,9 @@ LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME", "helpdesk-openenv")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL") or os.getenv("MODEL_NAME") or "gpt-5"
 API_KEY = os.getenv("API_KEY") or os.getenv("OPENAI_API_KEY") or os.getenv("GROQ_API_KEY")
-HF_SPACE_URL = os.getenv("HF_SPACE_URL", "https://freakdivi-helpdesk.hf.space")
+HF_SPACE_URL = os.getenv("HF_SPACE_URL", "https://freakdivi-helpdesk-env.hf.space")
 HF_SPACE_TOKEN = os.getenv("HF_SPACE_TOKEN", "")
-TASK_NAME = os.getenv("TASK_NAME", "medium")
+TASK_NAME = os.getenv("TASK_NAME", "all")
 BENCHMARK = os.getenv("BENCHMARK", "helpdesk_env")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "180"))
@@ -80,6 +80,8 @@ MAX_STEPS_BY_TASK = {
     "medium": 3,
     "hard": 8,
 }
+
+SUPPORTED_TASKS = ("easy", "medium", "hard")
 
 SYSTEM_PROMPT_BASE = (
     "You are a banking customer support agent for a UPI payments app. "
@@ -261,13 +263,22 @@ def get_model_action(
     return parse_action(text, task_id, turn_number)
 
 
-def main() -> None:
-    if not API_KEY:
-        raise RuntimeError(
-            "Set API_KEY, OPENAI_API_KEY, or GROQ_API_KEY before running inference.py"
-        )
+def _resolve_requested_tasks(task_name: str) -> List[str]:
+    normalized = task_name.strip().lower()
+    if not normalized or normalized == "all":
+        return list(SUPPORTED_TASKS)
 
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    requested = [task.strip().lower() for task in task_name.split(",") if task.strip()]
+    invalid = [task for task in requested if task not in SUPPORTED_TASKS]
+    if invalid:
+        raise ValueError(
+            f"Unsupported TASK_NAME value(s): {', '.join(invalid)}. "
+            f"Expected one of: {', '.join(SUPPORTED_TASKS)} or 'all'."
+        )
+    return requested
+
+
+def _run_task(client: OpenAI, task_id: str) -> None:
     env = HelpdeskEnv()
 
     history: List[str] = []
@@ -276,13 +287,13 @@ def main() -> None:
     score = ensure_open_unit_interval(0.0)
     success = False
 
-    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+    log_start(task=task_id, env=BENCHMARK, model=MODEL_NAME)
 
     try:
-        observation = env.reset(TASK_NAME)
+        observation = env.reset(task_id)
         done = False
 
-        for step in range(1, MAX_STEPS_BY_TASK.get(TASK_NAME, 3) + 1):
+        for step in range(1, MAX_STEPS_BY_TASK.get(task_id, 3) + 1):
             if done:
                 break
 
@@ -290,7 +301,7 @@ def main() -> None:
             try:
                 raw_action = get_model_action(
                     client=client,
-                    task_id=TASK_NAME,
+                    task_id=task_id,
                     observation_json=observation.model_dump_json(),
                     history=history,
                     turn_number=observation.turn_number,
@@ -299,7 +310,7 @@ def main() -> None:
                 observation, reward, done, _info = env.step(action)
                 reward_value = ensure_open_unit_interval(reward.value)
             except Exception as exc:
-                raw_action = _fallback_action(TASK_NAME, observation.turn_number)
+                raw_action = _fallback_action(task_id, observation.turn_number)
                 action = normalize_action(raw_action)
                 reward_value = ensure_open_unit_interval(0.0)
                 done = True
@@ -323,6 +334,17 @@ def main() -> None:
 
     finally:
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
+
+
+def main() -> None:
+    if not API_KEY:
+        raise RuntimeError(
+            "Set API_KEY, OPENAI_API_KEY, or GROQ_API_KEY before running inference.py"
+        )
+
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    for task_id in _resolve_requested_tasks(TASK_NAME):
+        _run_task(client, task_id)
 
 
 if __name__ == "__main__":
